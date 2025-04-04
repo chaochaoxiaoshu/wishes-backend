@@ -46,4 +46,9 @@ type Wish struct {
 
 	DonorID *uint `json:"donorId,omitempty" gorm:"index"`
 	Donor   *User `json:"donor,omitempty" gorm:"foreignKey:DonorID"`
+
+	DonorName    string `json:"donorName,omitempty"`
+	DonorMobile  string `json:"donorMobile,omitempty"`
+	DonorAddress string `json:"donorAddress,omitempty"`
+	DonorComment string `json:"donorComment,omitempty"`
 }

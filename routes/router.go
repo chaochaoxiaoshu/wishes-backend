@@ -30,6 +30,12 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 		auth := v1.Group("/user")
 		{
 			auth.POST("/login", options.AuthController.WechatLogin)
+
+			userProtected := auth.Group("/")
+			userProtected.Use(middleware.JWTAuth())
+			{
+				userProtected.GET("/wishes", options.WishController.GetUserDonatedWishes)
+			}
 		}
 
 		admin := v1.Group("/admin")
@@ -43,6 +49,8 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 		{
 			protected.GET("/wishes", options.WishController.GetWishes)
 			protected.POST("/wishes", options.WishController.CreateWish)
+			protected.DELETE("/wishes/:id", options.WishController.DeleteWish)
+			protected.PUT("/wishes/:id", options.WishController.UpdateWish)
 			protected.PUT("/wishes/:id/donor", options.WishController.UpdateWishDonor)
 		}
 	}

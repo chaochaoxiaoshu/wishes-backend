@@ -25,33 +25,9 @@ func NewAuthController(db *gorm.DB, wechatService *services.WechatService) *Auth
 	}
 }
 
-type WechatLoginRequest struct {
-	Code string `json:"code" binding:"required"`
-}
-
-type WechatLoginResponse struct {
-	Token string      `json:"token"`
-	User  models.User `json:"user"`
-}
-
-type AdminLoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
-type AdminLoginResponse struct {
-	Token string       `json:"token"`
-	Admin models.Admin `json:"admin"`
-}
-
 type AdminRegisterRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
-}
-
-type WechatUserInfoRequest struct {
-	Nickname  string `json:"nickName"`
-	AvatarURL string `json:"avatarUrl"`
 }
 
 // AdminRegister godoc
@@ -61,7 +37,7 @@ type WechatUserInfoRequest struct {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param data body AdminRegisterRequest true "管理员注册信息"
+// @Param request body AdminRegisterRequest true "管理员注册信息"
 // @Success 201 {object} models.Admin
 // @Failure 400 {object} map[string]interface{} "请求参数错误"
 // @Failure 401 {object} map[string]interface{} "未授权"
@@ -101,13 +77,23 @@ func (c *AuthController) AdminRegister(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, utils.CreateResponse(admin))
 }
 
+type AdminLoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type AdminLoginResponse struct {
+	Token string       `json:"token"`
+	Admin models.Admin `json:"admin"`
+}
+
 // AdminLogin godoc
 // @Summary 管理员登录
 // @Description 管理员登录并获取认证令牌
 // @Tags 管理员
 // @Accept json
 // @Produce json
-// @Param data body AdminLoginRequest true "管理员登录信息"
+// @Param request body AdminLoginRequest true "管理员登录信息"
 // @Success 200 {object} AdminLoginResponse
 // @Failure 400 {object} map[string]interface{} "请求参数错误"
 // @Failure 401 {object} map[string]interface{} "未授权"
@@ -144,13 +130,22 @@ func (c *AuthController) AdminLogin(ctx *gin.Context) {
 	}))
 }
 
+type WechatLoginRequest struct {
+	Code string `json:"code" binding:"required"`
+}
+
+type WechatLoginResponse struct {
+	Token string      `json:"token"`
+	User  models.User `json:"user"`
+}
+
 // WechatLogin godoc
 // @Summary 微信小程序登录
 // @Description 通过微信小程序临时登录凭证code进行登录
 // @Tags 用户
 // @Accept json
 // @Produce json
-// @Param data body WechatLoginRequest true "微信登录信息"
+// @Param request body WechatLoginRequest true "微信登录请求"
 // @Success 200 {object} WechatLoginResponse
 // @Failure 400 {object} map[string]interface{} "请求参数错误"
 // @Failure 500 {object} map[string]interface{} "服务器错误"
@@ -174,6 +169,11 @@ func (c *AuthController) WechatLogin(ctx *gin.Context) {
 	}))
 }
 
+type WechatUserInfoRequest struct {
+	Nickname  string `json:"nickName"`
+	AvatarURL string `json:"avatarUrl"`
+}
+
 // UpdateWechatUserInfo godoc
 // @Summary 更新微信用户信息
 // @Description 更新微信用户的昵称和头像
@@ -181,7 +181,7 @@ func (c *AuthController) WechatLogin(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param data body WechatUserInfoRequest true "用户信息"
+// @Param request body WechatUserInfoRequest true "微信用户信息"
 // @Success 200 {object} models.User
 // @Failure 400 {object} map[string]interface{} "请求参数错误"
 // @Failure 401 {object} map[string]interface{} "未授权"

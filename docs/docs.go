@@ -31,7 +31,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "管理员登录信息",
-                        "name": "data",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -91,7 +91,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "管理员注册信息",
-                        "name": "data",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -152,8 +152,8 @@ const docTemplate = `{
                 "summary": "微信小程序登录",
                 "parameters": [
                     {
-                        "description": "微信登录信息",
-                        "name": "data",
+                        "description": "微信登录请求",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -205,8 +205,8 @@ const docTemplate = `{
                 "summary": "更新微信用户信息",
                 "parameters": [
                     {
-                        "description": "用户信息",
-                        "name": "data",
+                        "description": "微信用户信息",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -245,6 +245,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/user/wishes": {
+            "get": {
+                "description": "获取当前登录用户点亮的所有心愿",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取用户点亮的心愿",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认1",
+                        "name": "page-index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认10",
+                        "name": "page-size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回用户点亮的心愿列表",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetWishesResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "用户未登录",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/wishes": {
             "get": {
                 "description": "获取心愿列表，支持分页和过滤",
@@ -259,12 +310,6 @@ const docTemplate = `{
                 ],
                 "summary": "获取心愿列表",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "按姓名模糊搜索",
-                        "name": "child-name",
-                        "in": "query"
-                    },
                     {
                         "type": "string",
                         "description": "按心愿内容模糊搜索",
@@ -297,8 +342,7 @@ const docTemplate = `{
                     "200": {
                         "description": "返回心愿列表和分页信息",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.GetWishesResponse"
                         }
                     },
                     "500": {
@@ -325,17 +369,116 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "心愿信息",
-                        "name": "wish",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Wish"
+                            "$ref": "#/definitions/controllers.CreateWishRequest"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
                         "description": "返回创建的心愿",
+                        "schema": {
+                            "$ref": "#/definitions/models.Wish"
+                        }
+                    },
+                    "400": {
+                        "description": "请求数据无效",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/wishes/{id}": {
+            "put": {
+                "description": "更新心愿",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "心愿"
+                ],
+                "summary": "更新心愿",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "心愿ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "心愿信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateWishRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回更新后的心愿",
+                        "schema": {
+                            "$ref": "#/definitions/models.Wish"
+                        }
+                    },
+                    "400": {
+                        "description": "请求数据无效",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除心愿",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "心愿"
+                ],
+                "summary": "删除心愿",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "心愿ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功删除心愿",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -370,7 +513,7 @@ const docTemplate = `{
                 "tags": [
                     "心愿"
                 ],
-                "summary": "更新心愿捐赠者",
+                "summary": "点亮心愿",
                 "parameters": [
                     {
                         "type": "integer",
@@ -381,11 +524,11 @@ const docTemplate = `{
                     },
                     {
                         "description": "捐赠者信息",
-                        "name": "donor",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/controllers.UpdateWishDonorRequest"
                         }
                     }
                 ],
@@ -393,8 +536,7 @@ const docTemplate = `{
                     "200": {
                         "description": "返回更新后的心愿",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.Wish"
                         }
                     },
                     "400": {
@@ -460,6 +602,94 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.CreateWishRequest": {
+            "type": "object",
+            "properties": {
+                "childName": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/models.Gender"
+                },
+                "grade": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.GetWishesResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Wish"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/controllers.Pagination"
+                }
+            }
+        },
+        "controllers.Pagination": {
+            "type": "object",
+            "properties": {
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "pageTotal": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.UpdateWishDonorRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "donorMobile": {
+                    "type": "string"
+                },
+                "donorName": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdateWishRequest": {
+            "type": "object",
+            "properties": {
+                "childName": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/models.Gender"
+                },
+                "grade": {
+                    "type": "string"
+                },
+                "photoUrl": {
                     "type": "string"
                 }
             }
@@ -568,11 +798,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "childName": {
-                    "description": "儿童姓名",
                     "type": "string"
                 },
                 "content": {
-                    "description": "心愿内容",
                     "type": "string"
                 },
                 "createdAt": {
@@ -582,38 +810,36 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "donor": {
-                    "description": "捐赠者信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    ]
+                    "$ref": "#/definitions/models.User"
+                },
+                "donorAddress": {
+                    "type": "string"
+                },
+                "donorComment": {
+                    "type": "string"
                 },
                 "donorId": {
-                    "description": "捐赠者ID",
                     "type": "integer"
                 },
+                "donorMobile": {
+                    "type": "string"
+                },
+                "donorName": {
+                    "type": "string"
+                },
                 "gender": {
-                    "description": "性别",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Gender"
-                        }
-                    ]
+                    "$ref": "#/definitions/models.Gender"
                 },
                 "grade": {
-                    "description": "年级",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "isDone": {
-                    "description": "是否已完成",
                     "type": "boolean"
                 },
                 "photoUrl": {
-                    "description": "照片URL",
                     "type": "string"
                 },
                 "updatedAt": {

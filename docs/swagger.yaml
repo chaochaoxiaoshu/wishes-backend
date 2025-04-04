@@ -26,6 +26,63 @@ definitions:
     - password
     - username
     type: object
+  controllers.CreateWishRequest:
+    properties:
+      childName:
+        type: string
+      content:
+        type: string
+      gender:
+        $ref: '#/definitions/models.Gender'
+      grade:
+        type: string
+      photoUrl:
+        type: string
+    type: object
+  controllers.GetWishesResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.Wish'
+        type: array
+      pagination:
+        $ref: '#/definitions/controllers.Pagination'
+    type: object
+  controllers.Pagination:
+    properties:
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      pageTotal:
+        type: integer
+      total:
+        type: integer
+    type: object
+  controllers.UpdateWishDonorRequest:
+    properties:
+      address:
+        type: string
+      comment:
+        type: string
+      donorMobile:
+        type: string
+      donorName:
+        type: string
+    type: object
+  controllers.UpdateWishRequest:
+    properties:
+      childName:
+        type: string
+      content:
+        type: string
+      gender:
+        $ref: '#/definitions/models.Gender'
+      grade:
+        type: string
+      photoUrl:
+        type: string
+    type: object
   controllers.WechatLoginRequest:
     properties:
       code:
@@ -96,36 +153,34 @@ definitions:
     description: 儿童心愿信息
     properties:
       childName:
-        description: 儿童姓名
         type: string
       content:
-        description: 心愿内容
         type: string
       createdAt:
         type: integer
       deletedAt:
         type: integer
       donor:
-        allOf:
-        - $ref: '#/definitions/models.User'
-        description: 捐赠者信息
+        $ref: '#/definitions/models.User'
+      donorAddress:
+        type: string
+      donorComment:
+        type: string
       donorId:
-        description: 捐赠者ID
         type: integer
+      donorMobile:
+        type: string
+      donorName:
+        type: string
       gender:
-        allOf:
-        - $ref: '#/definitions/models.Gender'
-        description: 性别
+        $ref: '#/definitions/models.Gender'
       grade:
-        description: 年级
         type: string
       id:
         type: integer
       isDone:
-        description: 是否已完成
         type: boolean
       photoUrl:
-        description: 照片URL
         type: string
       updatedAt:
         type: integer
@@ -145,7 +200,7 @@ paths:
       parameters:
       - description: 管理员登录信息
         in: body
-        name: data
+        name: request
         required: true
         schema:
           $ref: '#/definitions/controllers.AdminLoginRequest'
@@ -182,7 +237,7 @@ paths:
       parameters:
       - description: 管理员注册信息
         in: body
-        name: data
+        name: request
         required: true
         schema:
           $ref: '#/definitions/controllers.AdminRegisterRequest'
@@ -224,9 +279,9 @@ paths:
       - application/json
       description: 通过微信小程序临时登录凭证code进行登录
       parameters:
-      - description: 微信登录信息
+      - description: 微信登录请求
         in: body
-        name: data
+        name: request
         required: true
         schema:
           $ref: '#/definitions/controllers.WechatLoginRequest'
@@ -256,9 +311,9 @@ paths:
       - application/json
       description: 更新微信用户的昵称和头像
       parameters:
-      - description: 用户信息
+      - description: 微信用户信息
         in: body
-        name: data
+        name: request
         required: true
         schema:
           $ref: '#/definitions/controllers.WechatUserInfoRequest'
@@ -289,16 +344,46 @@ paths:
       summary: 更新微信用户信息
       tags:
       - 用户
+  /api/v1/user/wishes:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户点亮的所有心愿
+      parameters:
+      - description: 页码，默认1
+        in: query
+        name: page-index
+        type: integer
+      - description: 每页数量，默认10
+        in: query
+        name: page-size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回用户点亮的心愿列表
+          schema:
+            $ref: '#/definitions/controllers.GetWishesResponse'
+        "401":
+          description: 用户未登录
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取用户点亮的心愿
+      tags:
+      - 用户
   /api/v1/wishes:
     get:
       consumes:
       - application/json
       description: 获取心愿列表，支持分页和过滤
       parameters:
-      - description: 按姓名模糊搜索
-        in: query
-        name: child-name
-        type: string
       - description: 按心愿内容模糊搜索
         in: query
         name: content
@@ -324,8 +409,7 @@ paths:
         "200":
           description: 返回心愿列表和分页信息
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.GetWishesResponse'
         "500":
           description: 服务器错误
           schema:
@@ -341,15 +425,46 @@ paths:
       parameters:
       - description: 心愿信息
         in: body
-        name: wish
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Wish'
+          $ref: '#/definitions/controllers.CreateWishRequest'
       produces:
       - application/json
       responses:
         "201":
           description: 返回创建的心愿
+          schema:
+            $ref: '#/definitions/models.Wish'
+        "400":
+          description: 请求数据无效
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 创建新心愿
+      tags:
+      - 心愿
+  /api/v1/wishes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除心愿
+      parameters:
+      - description: 心愿ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功删除心愿
           schema:
             additionalProperties: true
             type: object
@@ -363,7 +478,43 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 创建新心愿
+      summary: 删除心愿
+      tags:
+      - 心愿
+    put:
+      consumes:
+      - application/json
+      description: 更新心愿
+      parameters:
+      - description: 心愿ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 心愿信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateWishRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回更新后的心愿
+          schema:
+            $ref: '#/definitions/models.Wish'
+        "400":
+          description: 请求数据无效
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新心愿
       tags:
       - 心愿
   /api/v1/wishes/{id}/donor:
@@ -379,18 +530,17 @@ paths:
         type: integer
       - description: 捐赠者信息
         in: body
-        name: donor
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/controllers.UpdateWishDonorRequest'
       produces:
       - application/json
       responses:
         "200":
           description: 返回更新后的心愿
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Wish'
         "400":
           description: 请求数据无效
           schema:
@@ -406,7 +556,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 更新心愿捐赠者
+      summary: 点亮心愿
       tags:
       - 心愿
 swagger: "2.0"

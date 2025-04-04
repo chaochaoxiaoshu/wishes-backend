@@ -18,12 +18,9 @@ func NewWishService(db *gorm.DB) *WishService {
 	}
 }
 
-func (s *WishService) FindWishes(filters map[string]any) ([]models.Wish, int64, error) {
+func (s *WishService) GetWishes(filters map[string]any) ([]models.Wish, int64, error) {
 	query := s.db.Model(&models.Wish{})
 
-	if childName, ok := filters["childName"].(string); ok && childName != "" {
-		query = query.Where("child_name LIKE ?", "%"+childName+"%")
-	}
 	if content, ok := filters["content"].(string); ok && content != "" {
 		query = query.Where("content LIKE ?", "%"+content+"%")
 	}
@@ -70,10 +67,20 @@ func (s *WishService) DeleteWish(id uint) error {
 	return s.db.Delete(&models.Wish{}, id).Error
 }
 
-func (s *WishService) CreateOrUpdateUser(user *models.User) error {
-	if user.ID == 0 {
-		return s.db.Create(user).Error
+func (s *WishService) GetWishesByDonorID(donorID uint, pageIndex, pageSize int) ([]models.Wish, int64, error) {
+	query := s.db.Model(&models.Wish{}).Where("donor_id = ?", donorID)
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
 
-	return s.db.Save(user).Error
+	offset := (pageIndex - 1) * pageSize
+
+	var wishes []models.Wish
+	if err := query.Limit(pageSize).Offset(offset).Find(&wishes).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return wishes, total, nil
 }
