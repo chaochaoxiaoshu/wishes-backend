@@ -5,11 +5,8 @@ services:
       - "8080:8080"
     volumes:
       - sqlite-data:/app/data
-    environment:
-      - SQLITE_DB_PATH=/app/data/wishes.db
-      - JWT_SECRET=e8f2c7b5a6d9f0e3d1c4b8a7f2e5d9c6b3a0f1e4d7c8b5a2f9e6d3c0b7a4f1e8
-      - WECHAT_APPID=appId
-      - WECHAT_SECRET=secret
+    env_file:
+      - .env
 volumes:
   sqlite-data:
     driver: local

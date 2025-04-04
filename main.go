@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"wishes/config"
 	"wishes/controllers"
 	_ "wishes/docs"
@@ -14,10 +15,12 @@ import (
 // @description     心愿墙公益项目API
 // @host      localhost:8080
 func main() {
+	cst8 := time.FixedZone("CST", 8*3600)
+	time.Local = cst8
+
 	cfg := config.LoadConfig()
 	middleware.InitJWTSecret(cfg.JWTSecret)
-
-	db := config.InitDB(cfg)
+	db := config.InitDB(cfg, cst8)
 
 	// 初始化服务
 	wechatService := services.NewWechatService(db, cfg.WechatAppID, cfg.WechatAppSecret, cfg.JWTSecret)

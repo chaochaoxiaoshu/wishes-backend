@@ -12,7 +12,7 @@ import (
 	"wishes/models"
 )
 
-func InitDB(config *Config) *gorm.DB {
+func InitDB(config *Config, timeZone *time.Location) *gorm.DB {
 	dir := "./data"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		os.MkdirAll(dir, 0755)
@@ -20,7 +20,7 @@ func InitDB(config *Config) *gorm.DB {
 
 	db, err := gorm.Open(sqlite.Open(config.DBPath), &gorm.Config{
 		NowFunc: func() time.Time {
-			return time.Now().In(config.TimeZone)
+			return time.Now().In(timeZone)
 		},
 	})
 	if err != nil {
@@ -29,6 +29,6 @@ func InitDB(config *Config) *gorm.DB {
 
 	db.AutoMigrate(&models.Wish{}, &models.User{}, &models.Admin{})
 
-	fmt.Printf("成功连接到SQLite数据库: %s (时区: %s)\n", config.DBPath, config.TimeZone.String())
+	fmt.Printf("成功连接到SQLite数据库: %s (时区: %s)\n", config.DBPath, timeZone.String())
 	return db
 }
