@@ -10,8 +10,9 @@ import (
 )
 
 type SetupRouterOptions struct {
-	AuthController *controllers.AuthController
-	WishController *controllers.WishController
+	AuthController   *controllers.AuthController
+	WishController   *controllers.WishController
+	RecordController *controllers.RecordController
 }
 
 func SetupRouter(options SetupRouterOptions) *gin.Engine {
@@ -34,7 +35,7 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 			userProtected := auth.Group("/")
 			userProtected.Use(middleware.JWTAuth())
 			{
-				userProtected.GET("/wishes", options.WishController.GetUserDonatedWishes)
+				userProtected.GET("/records", options.RecordController.GetWishRecords)
 			}
 		}
 
@@ -51,7 +52,10 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 			protected.POST("/wishes", options.WishController.CreateWish)
 			protected.DELETE("/wishes/:id", options.WishController.DeleteWish)
 			protected.PUT("/wishes/:id", options.WishController.UpdateWish)
-			protected.PUT("/wishes/:id/donor", options.WishController.UpdateWishDonor)
+			protected.PUT("/wishes/:id/donor", options.WishController.ClaimWish)
+
+			protected.GET("/records", options.RecordController.GetAllRecords)
+			protected.PUT("/records/:id/status", options.RecordController.UpdateRecordStatus)
 		}
 	}
 

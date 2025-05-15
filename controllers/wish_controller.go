@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"math"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	"wishes/models"
 	"wishes/services"
@@ -13,31 +11,30 @@ import (
 )
 
 type WishController struct {
-	wishService *services.WishService
-	userService *services.UserService
+	wishService   *services.WishService
+	recordService *services.RecordService
+	userService   *services.UserService
 }
 
-func NewWishController(db *gorm.DB, wishService *services.WishService, userService *services.UserService) *WishController {
+func NewWishController(
+	wishService *services.WishService,
+	recordService *services.RecordService,
+	userService *services.UserService,
+) *WishController {
 	return &WishController{
-		wishService: wishService,
-		userService: userService,
+		wishService:   wishService,
+		recordService: recordService,
+		userService:   userService,
 	}
 }
 
-type Pagination struct {
-	Total     int `json:"total"`
-	PageIndex int `json:"pageIndex"`
-	PageSize  int `json:"pageSize"`
-	PageCount int `json:"pageTotal"`
-}
-
 type GetWishesResponse struct {
-	Items      []models.Wish `json:"items"`
-	Pagination Pagination    `json:"pagination"`
+	Items      []models.Wish    `json:"items"`
+	Pagination utils.Pagination `json:"pagination"`
 }
 
 // GetWishes godoc
-// @Summary      获取心愿列表
+// @Summary      [小程序/后台]获取心愿列表
 // @Description  获取心愿列表，支持分页和过滤
 // @Tags         心愿
 // @Accept       json
@@ -78,26 +75,24 @@ func (c *WishController) GetWishes(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, utils.CreateResponse(GetWishesResponse{
-		Items: wishes,
-		Pagination: Pagination{
-			Total:     int(total),
-			PageIndex: pageIndex,
-			PageSize:  pageSize,
-			PageCount: int(math.Ceil(float64(total) / float64(pageSize))),
-		},
+		Items:      wishes,
+		Pagination: utils.NewPagination(total, pageIndex, pageSize),
 	}))
 }
 
 type CreateWishRequest struct {
 	ChildName string        `json:"childName"`
-	Grade     string        `json:"grade"`
 	Gender    models.Gender `json:"gender"`
 	Content   string        `json:"content"`
-	PhotoURL  string        `json:"photoUrl"`
+	Reason    string        `json:"reason"`
+	Grade     string        `json:"grade,omitempty"`
+	PhotoURL  string        `json:"photoUrl,omitempty"`
+
+	IsPublished bool `json:"isPublished,omitempty"`
 }
 
 // CreateWish godoc
-// @Summary      创建新心愿
+// @Summary      [后台]创建新心愿
 // @Description  创建一个新的心愿
 // @Tags         心愿
 // @Accept       json
@@ -115,11 +110,13 @@ func (c *WishController) CreateWish(ctx *gin.Context) {
 	}
 
 	newWish := models.Wish{
-		ChildName: wish.ChildName,
-		Grade:     wish.Grade,
-		Gender:    wish.Gender,
-		Content:   wish.Content,
-		PhotoURL:  wish.PhotoURL,
+		ChildName:   wish.ChildName,
+		Gender:      wish.Gender,
+		Content:     wish.Content,
+		Reason:      wish.Reason,
+		Grade:       wish.Grade,
+		PhotoURL:    wish.PhotoURL,
+		IsPublished: wish.IsPublished,
 	}
 
 	if err := c.wishService.CreateWish(&newWish); err != nil {
@@ -131,7 +128,7 @@ func (c *WishController) CreateWish(ctx *gin.Context) {
 }
 
 // DeleteWish godoc
-// @Summary      删除心愿
+// @Summary      [后台]删除心愿
 // @Description  删除心愿
 // @Tags         心愿
 // @Accept       json
@@ -158,14 +155,17 @@ func (c *WishController) DeleteWish(ctx *gin.Context) {
 
 type UpdateWishRequest struct {
 	ChildName string        `json:"childName"`
-	Grade     string        `json:"grade"`
 	Gender    models.Gender `json:"gender"`
 	Content   string        `json:"content"`
+	Reason    string        `json:"reason"`
+	Grade     string        `json:"grade"`
 	PhotoURL  string        `json:"photoUrl"`
+
+	IsPublished bool `json:"isPublished"`
 }
 
 // UpdateWish godoc
-// @Summary      更新心愿
+// @Summary      [后台]更新心愿
 // @Description  更新心愿
 // @Tags         心愿
 // @Accept       json
@@ -196,10 +196,12 @@ func (c *WishController) UpdateWish(ctx *gin.Context) {
 	}
 
 	wish.ChildName = wishInfo.ChildName
-	wish.Grade = wishInfo.Grade
 	wish.Gender = wishInfo.Gender
 	wish.Content = wishInfo.Content
+	wish.Reason = wishInfo.Reason
+	wish.Grade = wishInfo.Grade
 	wish.PhotoURL = wishInfo.PhotoURL
+	wish.IsPublished = wishInfo.IsPublished
 
 	if err := c.wishService.UpdateWish(wish); err != nil {
 		ctx.JSON(500, utils.CreateResponse(nil, "无法更新心愿"))
@@ -216,9 +218,9 @@ type UpdateWishDonorRequest struct {
 	Comment string `json:"comment"`
 }
 
-// UpdateWishDonor godoc
-// @Summary      点亮心愿
-// @Description  为心愿绑定捐赠者并标记为已完成
+// ClaimWish godoc
+// @Summary      [小程序]点亮心愿
+// @Description  创建一条认领记录
 // @Tags         心愿
 // @Accept       json
 // @Produce      json
@@ -229,7 +231,7 @@ type UpdateWishDonorRequest struct {
 // @Failure      404   {object}  map[string]interface{}  "心愿不存在"
 // @Failure      500   {object}  map[string]interface{}  "服务器错误"
 // @Router       /api/v1/wishes/{id}/donor [put]
-func (c *WishController) UpdateWishDonor(ctx *gin.Context) {
+func (c *WishController) ClaimWish(ctx *gin.Context) {
 	donorID, exists := ctx.Get("userID")
 	if !exists {
 		ctx.JSON(401, utils.CreateResponse(nil, "登录已过期"))
@@ -261,85 +263,36 @@ func (c *WishController) UpdateWishDonor(ctx *gin.Context) {
 
 	var donorInfo UpdateWishDonorRequest
 	if err := ctx.ShouldBindJSON(&donorInfo); err != nil {
-		ctx.JSON(400, utils.CreateResponse(nil, "无效的捐赠者信息"))
+		ctx.JSON(400, utils.CreateResponse(nil, "无效的认领人信息"))
 		return
 	}
 
-	wish.DonorName = donorInfo.Name
-	wish.DonorMobile = donorInfo.Mobile
-	wish.DonorAddress = donorInfo.Address
-	wish.DonorComment = donorInfo.Comment
-
-	wish.DonorID = &donor.ID
-	wish.Donor = donor
-
-	wish.IsDone = true
-
-	if err := c.wishService.UpdateWish(wish); err != nil {
-		ctx.JSON(500, utils.CreateResponse(nil, "无法更新心愿状态"))
+	if wish.ActiveRecordID != nil {
+		ctx.JSON(500, utils.CreateResponse(nil, "该心愿已被认领"))
 		return
 	}
 
-	updatedWish, err := c.wishService.GetWishByID(uint(wishID))
+	newRecord := models.WishRecord{
+		DonorName:    donorInfo.Name,
+		DonorMobile:  donorInfo.Mobile,
+		DonorAddress: donorInfo.Address,
+		DonorComment: donorInfo.Comment,
+
+		WishID:  wish.ID,
+		DonorID: donor.ID,
+	}
+	if err := c.recordService.CreateRecordWithWish(&newRecord, wish); err != nil {
+		ctx.JSON(500, utils.CreateResponse(nil, "创建认领记录失败"))
+		return
+	}
+
+	// 查询完整的记录信息（可选，如果您需要返回关联的对象）
+	createdRecord, err := c.recordService.GetRecordByIDWithoutRecursion(newRecord.ID)
 	if err != nil {
-		ctx.JSON(500, utils.CreateResponse(nil, "无法获取更新后的心愿信息"))
+		ctx.JSON(500, utils.CreateResponse(nil, "无法获取创建的记录信息"))
 		return
 	}
 
-	ctx.JSON(200, utils.CreateResponse(updatedWish))
-}
-
-// GetUserDonatedWishes godoc
-// @Summary      获取用户点亮的心愿
-// @Description  获取当前登录用户点亮的所有心愿
-// @Tags         用户
-// @Accept       json
-// @Produce      json
-// @Param        page-index    query    int     false  "页码，默认1"
-// @Param        page-size     query    int     false  "每页数量，默认10"
-// @Success      200  {object}  controllers.GetWishesResponse  "返回用户点亮的心愿列表"
-// @Failure      401  {object}  map[string]interface{}  "用户未登录"
-// @Failure      500  {object}  map[string]interface{}  "服务器错误"
-// @Router       /api/v1/user/wishes [get]
-func (c *WishController) GetUserDonatedWishes(ctx *gin.Context) {
-	userID, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(401, utils.CreateResponse(nil, "登录已过期"))
-		return
-	}
-
-	userType, exists := ctx.Get("userType")
-	if !exists || userType != "user" {
-		ctx.JSON(401, utils.CreateResponse(nil, "只有用户可以查看点亮的心愿"))
-		return
-	}
-
-	pageIndexStr := ctx.DefaultQuery("page-index", "1")
-	pageIndex, err := strconv.Atoi(pageIndexStr)
-	if err != nil || pageIndex < 1 {
-		pageIndex = 1
-	}
-
-	pageSizeStr := ctx.DefaultQuery("page-size", "10")
-	pageSize, err := strconv.Atoi(pageSizeStr)
-	if err != nil || pageSize < 1 || pageSize > 100 {
-		pageSize = 10
-	}
-
-	wishes, total, err := c.wishService.GetWishesByDonorID(userID.(uint), pageIndex, pageSize)
-	if err != nil {
-		ctx.JSON(500, utils.CreateResponse(nil, "获取心愿列表失败"))
-		return
-	}
-
-	response := GetWishesResponse{
-		Items: wishes,
-		Pagination: Pagination{
-			Total:     int(total),
-			PageIndex: pageIndex,
-			PageSize:  pageSize,
-		},
-	}
-
-	ctx.JSON(200, utils.CreateResponse(response))
+	// 返回新创建的记录
+	ctx.JSON(200, utils.CreateResponse(createdRecord))
 }

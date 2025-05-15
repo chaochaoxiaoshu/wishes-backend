@@ -27,7 +27,7 @@ const docTemplate = `{
                 "tags": [
                     "管理员"
                 ],
-                "summary": "管理员登录",
+                "summary": "[后台]管理员登录",
                 "parameters": [
                     {
                         "description": "管理员登录信息",
@@ -70,6 +70,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/admin/records": {
+            "get": {
+                "description": "获取系统中所有心愿认领记录，支持分页和状态过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "记录"
+                ],
+                "summary": "[后台]获取所有心愿认领记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认1",
+                        "name": "page-index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认10",
+                        "name": "page-size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态过滤，可选值：pending_shipment, pending_confirmation等",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回记录列表",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetWishRecordsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "用户未登录或无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/admin/register": {
             "post": {
                 "security": [
@@ -87,7 +144,7 @@ const docTemplate = `{
                 "tags": [
                     "管理员"
                 ],
-                "summary": "管理员注册",
+                "summary": "[后台]管理员注册",
                 "parameters": [
                     {
                         "description": "管理员注册信息",
@@ -137,6 +194,135 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/records/{id}": {
+            "get": {
+                "description": "根据ID获取单个心愿认领记录的详细信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "记录"
+                ],
+                "summary": "[小程序/后台]获取单个心愿认领记录详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "记录ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回记录详情",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.RecordDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "记录不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/records/{id}/status": {
+            "put": {
+                "description": "更新记录状态并提供相应所需信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "记录"
+                ],
+                "summary": "[小程序/后台]更新心愿认领记录状态",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "记录ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新参数",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateRecordStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回更新后的记录",
+                        "schema": {
+                            "$ref": "#/definitions/models.WishRecord"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "记录不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/login": {
             "post": {
                 "description": "通过微信小程序临时登录凭证code进行登录",
@@ -149,7 +335,7 @@ const docTemplate = `{
                 "tags": [
                     "用户"
                 ],
-                "summary": "微信小程序登录",
+                "summary": "[小程序]微信小程序登录",
                 "parameters": [
                     {
                         "description": "微信登录请求",
@@ -185,6 +371,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/user/records": {
+            "get": {
+                "description": "获取当前登录用户点亮心愿的记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "记录"
+                ],
+                "summary": "[小程序]获取用户点亮心愿的记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认1",
+                        "name": "page-index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认10",
+                        "name": "page-size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回用户点亮的心愿列表",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetWishesResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "用户未登录",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/userinfo": {
             "put": {
                 "security": [
@@ -202,7 +439,7 @@ const docTemplate = `{
                 "tags": [
                     "用户"
                 ],
-                "summary": "更新微信用户信息",
+                "summary": "[小程序]更新微信用户信息",
                 "parameters": [
                     {
                         "description": "微信用户信息",
@@ -245,57 +482,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/user/wishes": {
-            "get": {
-                "description": "获取当前登录用户点亮的所有心愿",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户"
-                ],
-                "summary": "获取用户点亮的心愿",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "页码，默认1",
-                        "name": "page-index",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量，默认10",
-                        "name": "page-size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回用户点亮的心愿列表",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.GetWishesResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "用户未登录",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/wishes": {
             "get": {
                 "description": "获取心愿列表，支持分页和过滤",
@@ -308,7 +494,7 @@ const docTemplate = `{
                 "tags": [
                     "心愿"
                 ],
-                "summary": "获取心愿列表",
+                "summary": "[小程序/后台]获取心愿列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -365,7 +551,7 @@ const docTemplate = `{
                 "tags": [
                     "心愿"
                 ],
-                "summary": "创建新心愿",
+                "summary": "[后台]创建新心愿",
                 "parameters": [
                     {
                         "description": "心愿信息",
@@ -413,7 +599,7 @@ const docTemplate = `{
                 "tags": [
                     "心愿"
                 ],
-                "summary": "更新心愿",
+                "summary": "[后台]更新心愿",
                 "parameters": [
                     {
                         "type": "integer",
@@ -466,7 +652,7 @@ const docTemplate = `{
                 "tags": [
                     "心愿"
                 ],
-                "summary": "删除心愿",
+                "summary": "[后台]删除心愿",
                 "parameters": [
                     {
                         "type": "integer",
@@ -503,7 +689,7 @@ const docTemplate = `{
         },
         "/api/v1/wishes/{id}/donor": {
             "put": {
-                "description": "为心愿绑定捐赠者并标记为已完成",
+                "description": "创建一条认领记录",
                 "consumes": [
                     "application/json"
                 ],
@@ -513,7 +699,7 @@ const docTemplate = `{
                 "tags": [
                     "心愿"
                 ],
-                "summary": "点亮心愿",
+                "summary": "[小程序]点亮心愿",
                 "parameters": [
                     {
                         "type": "integer",
@@ -621,8 +807,28 @@ const docTemplate = `{
                 "grade": {
                     "type": "string"
                 },
+                "isPublished": {
+                    "type": "boolean"
+                },
                 "photoUrl": {
                     "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.GetWishRecordsResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.WishRecord"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/utils.Pagination"
                 }
             }
         },
@@ -636,24 +842,123 @@ const docTemplate = `{
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/controllers.Pagination"
+                    "$ref": "#/definitions/utils.Pagination"
                 }
             }
         },
-        "controllers.Pagination": {
+        "controllers.ProgressItem": {
             "type": "object",
             "properties": {
-                "pageIndex": {
+                "message": {
+                    "description": "信息，如有",
+                    "type": "string"
+                },
+                "photos": {
+                    "description": "照片，如有",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "对应的状态值",
+                    "type": "string"
+                },
+                "timestamp": {
+                    "description": "时间戳",
                     "type": "integer"
                 },
-                "pageSize": {
+                "trackingNumber": {
+                    "description": "单号，如有",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "进度类型：creation, shipping, confirmation, delivery, receipt, platformGift, ownerGift, cancellation",
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.RecordDetailResponse": {
+            "type": "object",
+            "properties": {
+                "childName": {
+                    "type": "string"
+                },
+                "claimedAt": {
                     "type": "integer"
                 },
-                "pageTotal": {
+                "createdAt": {
                     "type": "integer"
                 },
-                "total": {
+                "deletedAt": {
                     "type": "integer"
+                },
+                "donorAddress": {
+                    "type": "string"
+                },
+                "donorMobile": {
+                    "type": "string"
+                },
+                "donorName": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "记录基本信息",
+                    "type": "integer"
+                },
+                "progress": {
+                    "description": "进度数组",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.ProgressItem"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/models.WishRecordStatus"
+                },
+                "updatedAt": {
+                    "type": "integer"
+                },
+                "wishContent": {
+                    "type": "string"
+                },
+                "wishReason": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdateRecordStatusRequest": {
+            "type": "object",
+            "properties": {
+                "confirmationMessage": {
+                    "type": "string"
+                },
+                "confirmationPhotos": {
+                    "type": "string"
+                },
+                "deliveryNumber": {
+                    "type": "string"
+                },
+                "ownerGiftMessage": {
+                    "type": "string"
+                },
+                "ownerGiftPhotos": {
+                    "type": "string"
+                },
+                "platformGiftMessage": {
+                    "type": "string"
+                },
+                "platformGiftPhotos": {
+                    "type": "string"
+                },
+                "receiptMessage": {
+                    "type": "string"
+                },
+                "receiptPhotos": {
+                    "type": "string"
+                },
+                "shippingNumber": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.WishRecordStatus"
                 }
             }
         },
@@ -689,7 +994,13 @@ const docTemplate = `{
                 "grade": {
                     "type": "string"
                 },
+                "isPublished": {
+                    "type": "boolean"
+                },
                 "photoUrl": {
+                    "type": "string"
+                },
+                "reason": {
                     "type": "string"
                 }
             }
@@ -794,9 +1105,15 @@ const docTemplate = `{
             }
         },
         "models.Wish": {
-            "description": "儿童心愿信息",
+            "description": "心愿信息",
             "type": "object",
             "properties": {
+                "activeRecord": {
+                    "$ref": "#/definitions/models.WishRecord"
+                },
+                "activeRecordId": {
+                    "type": "integer"
+                },
                 "childName": {
                     "type": "string"
                 },
@@ -807,6 +1124,63 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "deletedAt": {
+                    "type": "integer"
+                },
+                "gender": {
+                    "$ref": "#/definitions/models.Gender"
+                },
+                "grade": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isPublished": {
+                    "type": "boolean"
+                },
+                "photoUrl": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.WishRecord": {
+            "description": "心愿认领记录",
+            "type": "object",
+            "properties": {
+                "cancellationTime": {
+                    "description": "取消时间",
+                    "type": "integer"
+                },
+                "confirmationMessage": {
+                    "description": "确认信息",
+                    "type": "string"
+                },
+                "confirmationPhotos": {
+                    "description": "确认照片数组",
+                    "type": "string"
+                },
+                "confirmationTime": {
+                    "description": "确认时间",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "deliveryNumber": {
+                    "description": "发货单号",
+                    "type": "string"
+                },
+                "deliveryTime": {
+                    "description": "发货时间",
                     "type": "integer"
                 },
                 "donor": {
@@ -827,22 +1201,102 @@ const docTemplate = `{
                 "donorName": {
                     "type": "string"
                 },
-                "gender": {
-                    "$ref": "#/definitions/models.Gender"
-                },
-                "grade": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
-                "isDone": {
-                    "type": "boolean"
-                },
-                "photoUrl": {
+                "ownerGiftMessage": {
+                    "description": "心愿主人回礼信息",
                     "type": "string"
                 },
+                "ownerGiftPhotos": {
+                    "description": "心愿主人回礼照片数组",
+                    "type": "string"
+                },
+                "ownerGiftTime": {
+                    "description": "心愿主人回礼时间",
+                    "type": "integer"
+                },
+                "platformGiftMessage": {
+                    "description": "平台回礼信息",
+                    "type": "string"
+                },
+                "platformGiftPhotos": {
+                    "description": "平台回礼照片数组",
+                    "type": "string"
+                },
+                "platformGiftTime": {
+                    "description": "平台回礼时间",
+                    "type": "integer"
+                },
+                "receiptMessage": {
+                    "description": "签收信息",
+                    "type": "string"
+                },
+                "receiptPhotos": {
+                    "description": "签收照片数组",
+                    "type": "string"
+                },
+                "receiptTime": {
+                    "description": "签收时间",
+                    "type": "integer"
+                },
+                "shippingNumber": {
+                    "description": "寄送单号",
+                    "type": "string"
+                },
+                "shippingTime": {
+                    "description": "寄送时间",
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.WishRecordStatus"
+                },
                 "updatedAt": {
+                    "type": "integer"
+                },
+                "wish": {
+                    "$ref": "#/definitions/models.Wish"
+                },
+                "wishId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.WishRecordStatus": {
+            "description": "心愿认领记录状态",
+            "type": "string",
+            "enum": [
+                "pending_shipment",
+                "pending_confirmation",
+                "confirmed",
+                "awaiting_receipt",
+                "completed",
+                "gift_returned",
+                "cancelled"
+            ],
+            "x-enum-varnames": [
+                "StatusPendingShipment",
+                "StatusPendingConfirmation",
+                "StatusConfirmed",
+                "StatusAwaitingReceipt",
+                "StatusCompleted",
+                "StatusGiftReturned",
+                "StatusCancelled"
+            ]
+        },
+        "utils.Pagination": {
+            "type": "object",
+            "properties": {
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "pageTotal": {
+                    "type": "integer"
+                },
+                "total": {
                     "type": "integer"
                 }
             }

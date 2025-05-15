@@ -31,7 +31,7 @@ type AdminRegisterRequest struct {
 }
 
 // AdminRegister godoc
-// @Summary 管理员注册
+// @Summary [后台]管理员注册
 // @Description 创建新管理员账号
 // @Tags 管理员
 // @Accept json
@@ -88,7 +88,7 @@ type AdminLoginResponse struct {
 }
 
 // AdminLogin godoc
-// @Summary 管理员登录
+// @Summary [后台]管理员登录
 // @Description 管理员登录并获取认证令牌
 // @Tags 管理员
 // @Accept json
@@ -140,7 +140,7 @@ type WechatLoginResponse struct {
 }
 
 // WechatLogin godoc
-// @Summary 微信小程序登录
+// @Summary [小程序]微信小程序登录
 // @Description 通过微信小程序临时登录凭证code进行登录
 // @Tags 用户
 // @Accept json
@@ -175,7 +175,7 @@ type WechatUserInfoRequest struct {
 }
 
 // UpdateWechatUserInfo godoc
-// @Summary 更新微信用户信息
+// @Summary [小程序]更新微信用户信息
 // @Description 更新微信用户的昵称和头像
 // @Tags 用户
 // @Accept json

@@ -36,8 +36,21 @@ definitions:
         $ref: '#/definitions/models.Gender'
       grade:
         type: string
+      isPublished:
+        type: boolean
       photoUrl:
         type: string
+      reason:
+        type: string
+    type: object
+  controllers.GetWishRecordsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.WishRecord'
+        type: array
+      pagination:
+        $ref: '#/definitions/utils.Pagination'
     type: object
   controllers.GetWishesResponse:
     properties:
@@ -46,18 +59,87 @@ definitions:
           $ref: '#/definitions/models.Wish'
         type: array
       pagination:
-        $ref: '#/definitions/controllers.Pagination'
+        $ref: '#/definitions/utils.Pagination'
     type: object
-  controllers.Pagination:
+  controllers.ProgressItem:
     properties:
-      pageIndex:
+      message:
+        description: 信息，如有
+        type: string
+      photos:
+        description: 照片，如有
+        type: string
+      status:
+        description: 对应的状态值
+        type: string
+      timestamp:
+        description: 时间戳
         type: integer
-      pageSize:
+      trackingNumber:
+        description: 单号，如有
+        type: string
+      type:
+        description: 进度类型：creation, shipping, confirmation, delivery, receipt, platformGift,
+          ownerGift, cancellation
+        type: string
+    type: object
+  controllers.RecordDetailResponse:
+    properties:
+      childName:
+        type: string
+      claimedAt:
         type: integer
-      pageTotal:
+      createdAt:
         type: integer
-      total:
+      deletedAt:
         type: integer
+      donorAddress:
+        type: string
+      donorMobile:
+        type: string
+      donorName:
+        type: string
+      id:
+        description: 记录基本信息
+        type: integer
+      progress:
+        description: 进度数组
+        items:
+          $ref: '#/definitions/controllers.ProgressItem'
+        type: array
+      status:
+        $ref: '#/definitions/models.WishRecordStatus'
+      updatedAt:
+        type: integer
+      wishContent:
+        type: string
+      wishReason:
+        type: string
+    type: object
+  controllers.UpdateRecordStatusRequest:
+    properties:
+      confirmationMessage:
+        type: string
+      confirmationPhotos:
+        type: string
+      deliveryNumber:
+        type: string
+      ownerGiftMessage:
+        type: string
+      ownerGiftPhotos:
+        type: string
+      platformGiftMessage:
+        type: string
+      platformGiftPhotos:
+        type: string
+      receiptMessage:
+        type: string
+      receiptPhotos:
+        type: string
+      shippingNumber:
+        type: string
+      status:
+        $ref: '#/definitions/models.WishRecordStatus'
     type: object
   controllers.UpdateWishDonorRequest:
     properties:
@@ -80,7 +162,11 @@ definitions:
         $ref: '#/definitions/models.Gender'
       grade:
         type: string
+      isPublished:
+        type: boolean
       photoUrl:
+        type: string
+      reason:
         type: string
     type: object
   controllers.WechatLoginRequest:
@@ -150,8 +236,12 @@ definitions:
         type: string
     type: object
   models.Wish:
-    description: 儿童心愿信息
+    description: 心愿信息
     properties:
+      activeRecord:
+        $ref: '#/definitions/models.WishRecord'
+      activeRecordId:
+        type: integer
       childName:
         type: string
       content:
@@ -159,6 +249,46 @@ definitions:
       createdAt:
         type: integer
       deletedAt:
+        type: integer
+      gender:
+        $ref: '#/definitions/models.Gender'
+      grade:
+        type: string
+      id:
+        type: integer
+      isPublished:
+        type: boolean
+      photoUrl:
+        type: string
+      reason:
+        type: string
+      updatedAt:
+        type: integer
+    type: object
+  models.WishRecord:
+    description: 心愿认领记录
+    properties:
+      cancellationTime:
+        description: 取消时间
+        type: integer
+      confirmationMessage:
+        description: 确认信息
+        type: string
+      confirmationPhotos:
+        description: 确认照片数组
+        type: string
+      confirmationTime:
+        description: 确认时间
+        type: integer
+      createdAt:
+        type: integer
+      deletedAt:
+        type: integer
+      deliveryNumber:
+        description: 发货单号
+        type: string
+      deliveryTime:
+        description: 发货时间
         type: integer
       donor:
         $ref: '#/definitions/models.User'
@@ -172,17 +302,78 @@ definitions:
         type: string
       donorName:
         type: string
-      gender:
-        $ref: '#/definitions/models.Gender'
-      grade:
-        type: string
       id:
         type: integer
-      isDone:
-        type: boolean
-      photoUrl:
+      ownerGiftMessage:
+        description: 心愿主人回礼信息
         type: string
+      ownerGiftPhotos:
+        description: 心愿主人回礼照片数组
+        type: string
+      ownerGiftTime:
+        description: 心愿主人回礼时间
+        type: integer
+      platformGiftMessage:
+        description: 平台回礼信息
+        type: string
+      platformGiftPhotos:
+        description: 平台回礼照片数组
+        type: string
+      platformGiftTime:
+        description: 平台回礼时间
+        type: integer
+      receiptMessage:
+        description: 签收信息
+        type: string
+      receiptPhotos:
+        description: 签收照片数组
+        type: string
+      receiptTime:
+        description: 签收时间
+        type: integer
+      shippingNumber:
+        description: 寄送单号
+        type: string
+      shippingTime:
+        description: 寄送时间
+        type: integer
+      status:
+        $ref: '#/definitions/models.WishRecordStatus'
       updatedAt:
+        type: integer
+      wish:
+        $ref: '#/definitions/models.Wish'
+      wishId:
+        type: integer
+    type: object
+  models.WishRecordStatus:
+    description: 心愿认领记录状态
+    enum:
+    - pending_shipment
+    - pending_confirmation
+    - confirmed
+    - awaiting_receipt
+    - completed
+    - gift_returned
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - StatusPendingShipment
+    - StatusPendingConfirmation
+    - StatusConfirmed
+    - StatusAwaitingReceipt
+    - StatusCompleted
+    - StatusGiftReturned
+    - StatusCancelled
+  utils.Pagination:
+    properties:
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      pageTotal:
+        type: integer
+      total:
         type: integer
     type: object
 host: localhost:8080
@@ -226,9 +417,47 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 管理员登录
+      summary: '[后台]管理员登录'
       tags:
       - 管理员
+  /api/v1/admin/records:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统中所有心愿认领记录，支持分页和状态过滤
+      parameters:
+      - description: 页码，默认1
+        in: query
+        name: page-index
+        type: integer
+      - description: 每页数量，默认10
+        in: query
+        name: page-size
+        type: integer
+      - description: 状态过滤，可选值：pending_shipment, pending_confirmation等
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回记录列表
+          schema:
+            $ref: '#/definitions/controllers.GetWishRecordsResponse'
+        "401":
+          description: 用户未登录或无权限
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: '[后台]获取所有心愿认领记录'
+      tags:
+      - 记录
   /api/v1/admin/register:
     post:
       consumes:
@@ -270,9 +499,97 @@ paths:
             type: object
       security:
       - ApiKeyAuth: []
-      summary: 管理员注册
+      summary: '[后台]管理员注册'
       tags:
       - 管理员
+  /api/v1/records/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取单个心愿认领记录的详细信息
+      parameters:
+      - description: 记录ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回记录详情
+          schema:
+            $ref: '#/definitions/controllers.RecordDetailResponse'
+        "400":
+          description: 无效的ID
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录或无权限
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 记录不存在
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: '[小程序/后台]获取单个心愿认领记录详情'
+      tags:
+      - 记录
+  /api/v1/records/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: 更新记录状态并提供相应所需信息
+      parameters:
+      - description: 记录ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新参数
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateRecordStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回更新后的记录
+          schema:
+            $ref: '#/definitions/models.WishRecord'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录或无权限
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 记录不存在
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: '[小程序/后台]更新心愿认领记录状态'
+      tags:
+      - 记录
   /api/v1/user/login:
     post:
       consumes:
@@ -302,9 +619,43 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 微信小程序登录
+      summary: '[小程序]微信小程序登录'
       tags:
       - 用户
+  /api/v1/user/records:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户点亮心愿的记录
+      parameters:
+      - description: 页码，默认1
+        in: query
+        name: page-index
+        type: integer
+      - description: 每页数量，默认10
+        in: query
+        name: page-size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回用户点亮的心愿列表
+          schema:
+            $ref: '#/definitions/controllers.GetWishesResponse'
+        "401":
+          description: 用户未登录
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: '[小程序]获取用户点亮心愿的记录'
+      tags:
+      - 记录
   /api/v1/user/userinfo:
     put:
       consumes:
@@ -341,41 +692,7 @@ paths:
             type: object
       security:
       - ApiKeyAuth: []
-      summary: 更新微信用户信息
-      tags:
-      - 用户
-  /api/v1/user/wishes:
-    get:
-      consumes:
-      - application/json
-      description: 获取当前登录用户点亮的所有心愿
-      parameters:
-      - description: 页码，默认1
-        in: query
-        name: page-index
-        type: integer
-      - description: 每页数量，默认10
-        in: query
-        name: page-size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回用户点亮的心愿列表
-          schema:
-            $ref: '#/definitions/controllers.GetWishesResponse'
-        "401":
-          description: 用户未登录
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: 服务器错误
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取用户点亮的心愿
+      summary: '[小程序]更新微信用户信息'
       tags:
       - 用户
   /api/v1/wishes:
@@ -415,7 +732,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 获取心愿列表
+      summary: '[小程序/后台]获取心愿列表'
       tags:
       - 心愿
     post:
@@ -446,7 +763,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 创建新心愿
+      summary: '[后台]创建新心愿'
       tags:
       - 心愿
   /api/v1/wishes/{id}:
@@ -478,7 +795,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 删除心愿
+      summary: '[后台]删除心愿'
       tags:
       - 心愿
     put:
@@ -514,14 +831,14 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 更新心愿
+      summary: '[后台]更新心愿'
       tags:
       - 心愿
   /api/v1/wishes/{id}/donor:
     put:
       consumes:
       - application/json
-      description: 为心愿绑定捐赠者并标记为已完成
+      description: 创建一条认领记录
       parameters:
       - description: 心愿ID
         in: path
@@ -556,7 +873,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 点亮心愿
+      summary: '[小程序]点亮心愿'
       tags:
       - 心愿
 swagger: "2.0"

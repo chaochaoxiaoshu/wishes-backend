@@ -25,16 +25,19 @@ func main() {
 	// 初始化服务
 	wechatService := services.NewWechatService(db, cfg.WechatAppID, cfg.WechatAppSecret, cfg.JWTSecret)
 	wishService := services.NewWishService(db)
+	recordService := services.NewRecordService(db)
 	userService := services.NewUserService(db)
 
 	// 初始化控制器
 	authController := controllers.NewAuthController(db, wechatService)
-	wishController := controllers.NewWishController(db, wishService, userService)
+	wishController := controllers.NewWishController(wishService, recordService, userService)
+	recordController := controllers.NewRecordController(recordService)
 
 	// 设置路由
 	r := routes.SetupRouter(routes.SetupRouterOptions{
-		AuthController: authController,
-		WishController: wishController,
+		AuthController:   authController,
+		WishController:   wishController,
+		RecordController: recordController,
 	})
 
 	r.Run(cfg.ServerAddress)
