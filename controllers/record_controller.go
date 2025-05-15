@@ -128,7 +128,7 @@ func (c *RecordController) GetAllRecords(ctx *gin.Context) {
 
 // 进度项结构体
 type ProgressItem struct {
-	Type           string `json:"type"`                     // 进度类型：creation, shipping, confirmation, delivery, receipt, platformGift, ownerGift, cancellation
+	Type           string `json:"type"`                     // 进度类型：creation, shipping, confirmation, delivery, receipt, cancellation
 	Status         string `json:"status"`                   // 对应的状态值
 	Timestamp      int64  `json:"timestamp"`                // 时间戳
 	Message        string `json:"message,omitempty"`        // 信息，如有
@@ -204,27 +204,27 @@ func (c *RecordController) GetRecordByID(ctx *gin.Context) {
 			})
 		}
 
-		// 心愿主人回礼
-		if record.OwnerGiftTime > 0 {
-			progressItems = append(progressItems, ProgressItem{
-				Type:      "ownerGift",
-				Status:    string(models.StatusGiftReturned),
-				Timestamp: record.OwnerGiftTime,
-				Message:   record.OwnerGiftMessage,
-				Photos:    record.OwnerGiftPhotos,
-			})
-		}
+		// // 心愿主人回礼
+		// if record.OwnerGiftTime > 0 {
+		// 	progressItems = append(progressItems, ProgressItem{
+		// 		Type:      "ownerGift",
+		// 		Status:    string(models.StatusGiftReturned),
+		// 		Timestamp: record.OwnerGiftTime,
+		// 		Message:   record.OwnerGiftMessage,
+		// 		Photos:    record.OwnerGiftPhotos,
+		// 	})
+		// }
 
-		// 平台回礼
-		if record.PlatformGiftTime > 0 {
-			progressItems = append(progressItems, ProgressItem{
-				Type:      "platformGift",
-				Status:    string(models.StatusGiftReturned),
-				Timestamp: record.PlatformGiftTime,
-				Message:   record.PlatformGiftMessage,
-				Photos:    record.PlatformGiftPhotos,
-			})
-		}
+		// // 平台回礼
+		// if record.PlatformGiftTime > 0 {
+		// 	progressItems = append(progressItems, ProgressItem{
+		// 		Type:      "platformGift",
+		// 		Status:    string(models.StatusGiftReturned),
+		// 		Timestamp: record.PlatformGiftTime,
+		// 		Message:   record.PlatformGiftMessage,
+		// 		Photos:    record.PlatformGiftPhotos,
+		// 	})
+		// }
 
 		// 签收
 		if record.ReceiptTime > 0 {
