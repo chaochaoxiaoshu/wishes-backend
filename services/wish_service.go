@@ -24,9 +24,24 @@ func (s *WishService) GetWishes(filters map[string]any) ([]models.Wish, int64, e
 	if content, ok := filters["content"].(string); ok && content != "" {
 		query = query.Where("content LIKE ?", "%"+content+"%")
 	}
+
+	// 处理完成状态过滤
 	if isDoneStr, ok := filters["isDone"].(string); ok && isDoneStr != "" {
 		if isBool, err := strconv.ParseBool(isDoneStr); err == nil {
-			query = query.Where("is_done = ?", isBool)
+			if isBool {
+				// 已完成：active_record_id 不为空
+				query = query.Where("active_record_id IS NOT NULL")
+			} else {
+				// 未完成：active_record_id 为空
+				query = query.Where("active_record_id IS NULL")
+			}
+		}
+	}
+
+	// 处理公开状态过滤
+	if isPublishedStr, ok := filters["isPublished"].(string); ok && isPublishedStr != "" {
+		if isBool, err := strconv.ParseBool(isPublishedStr); err == nil {
+			query = query.Where("is_published = ?", isBool)
 		}
 	}
 

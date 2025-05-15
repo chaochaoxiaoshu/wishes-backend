@@ -41,6 +41,7 @@ type GetWishesResponse struct {
 // @Produce      json
 // @Param        content      query     string  false  "按心愿内容模糊搜索"
 // @Param        is-done      query     bool    false  "按完成状态过滤,默认为false"  default(false)
+// @Param        is-published query     bool    false  "按公开状态过滤,不传为全部"
 // @Param        page-index   query     int     false  "页码，默认1"  default(1)
 // @Param        page-size    query     int     false  "每页数量，默认10"  default(10)
 // @Success      200  {object}  GetWishesResponse  "返回心愿列表和分页信息"
@@ -49,6 +50,7 @@ type GetWishesResponse struct {
 func (c *WishController) GetWishes(ctx *gin.Context) {
 	content := ctx.Query("content")
 	isDoneStr := ctx.DefaultQuery("is-done", "false")
+	isPublishedStr := ctx.Query("is-published") // 不设置默认值，不传表示全部
 	pageIndexStr := ctx.DefaultQuery("page-index", "1")
 	pageSizeStr := ctx.DefaultQuery("page-size", "10")
 
@@ -62,10 +64,11 @@ func (c *WishController) GetWishes(ctx *gin.Context) {
 	}
 
 	filters := map[string]any{
-		"content":   content,
-		"isDone":    isDoneStr,
-		"pageIndex": pageIndex,
-		"pageSize":  pageSize,
+		"content":     content,
+		"isDone":      isDoneStr,
+		"isPublished": isPublishedStr, // 添加公开状态过滤
+		"pageIndex":   pageIndex,
+		"pageSize":    pageSize,
 	}
 
 	wishes, total, err := c.wishService.GetWishes(filters)
