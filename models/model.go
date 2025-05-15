@@ -37,7 +37,7 @@ type Wish struct {
 	Model
 
 	ChildName string `json:"childName"`
-	Grade     string `json:"grade"`
+	Grade     string `json:"grade,omitempty"`
 	Gender    Gender `json:"gender"`
 	Content   string `json:"content"`
 	PhotoURL  string `json:"photoUrl,omitempty"`
