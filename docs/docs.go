@@ -593,6 +593,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/wishes/batch": {
+            "post": {
+                "description": "批量导入多个心愿",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "心愿"
+                ],
+                "summary": "[后台]批量导入心愿",
+                "parameters": [
+                    {
+                        "description": "心愿信息数组",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BatchCreateWishRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "返回导入结果",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "请求数据无效",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/wishes/{id}": {
             "put": {
                 "description": "更新心愿",
@@ -795,6 +844,40 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "controllers.BatchCreateWishItem": {
+            "type": "object",
+            "properties": {
+                "childName": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/models.Gender"
+                },
+                "grade": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.BatchCreateWishRequest": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.BatchCreateWishItem"
+                    }
                 }
             }
         },

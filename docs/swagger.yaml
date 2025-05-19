@@ -26,6 +26,28 @@ definitions:
     - password
     - username
     type: object
+  controllers.BatchCreateWishItem:
+    properties:
+      childName:
+        type: string
+      content:
+        type: string
+      gender:
+        $ref: '#/definitions/models.Gender'
+      grade:
+        type: string
+      photoUrl:
+        type: string
+      reason:
+        type: string
+    type: object
+  controllers.BatchCreateWishRequest:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/controllers.BatchCreateWishItem'
+        type: array
+    type: object
   controllers.CreateWishRequest:
     properties:
       childName:
@@ -877,6 +899,39 @@ paths:
             additionalProperties: true
             type: object
       summary: '[小程序]点亮心愿'
+      tags:
+      - 心愿
+  /api/v1/wishes/batch:
+    post:
+      consumes:
+      - application/json
+      description: 批量导入多个心愿
+      parameters:
+      - description: 心愿信息数组
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.BatchCreateWishRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 返回导入结果
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求数据无效
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: '[后台]批量导入心愿'
       tags:
       - 心愿
 swagger: "2.0"

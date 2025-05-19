@@ -235,7 +235,7 @@ type UpdateWishDonorRequest struct {
 // @Failure      500   {object}  map[string]interface{}  "服务器错误"
 // @Router       /api/v1/wishes/{id}/donor [put]
 func (c *WishController) ClaimWish(ctx *gin.Context) {
-	donorID, exists := ctx.Get("userID")
+	userID, exists := ctx.Get("userID")
 	if !exists {
 		ctx.JSON(401, utils.CreateResponse(nil, "登录已过期"))
 		return
@@ -246,7 +246,7 @@ func (c *WishController) ClaimWish(ctx *gin.Context) {
 		return
 	}
 
-	donor, err := c.userService.GetUserByID(donorID.(uint))
+	donor, err := c.userService.GetUserByID(userID.(uint))
 	if err != nil {
 		ctx.JSON(404, utils.CreateResponse(nil, "用户不存在"))
 		return
@@ -298,4 +298,73 @@ func (c *WishController) ClaimWish(ctx *gin.Context) {
 
 	// 返回新创建的记录
 	ctx.JSON(200, utils.CreateResponse(createdRecord))
+}
+
+type BatchCreateWishItem struct {
+	ChildName string        `json:"childName"`
+	Gender    models.Gender `json:"gender"`
+	Content   string        `json:"content"`
+	Reason    string        `json:"reason"`
+	Grade     string        `json:"grade,omitempty"`
+	PhotoURL  string        `json:"photoUrl,omitempty"`
+}
+
+type BatchCreateWishRequest struct {
+	Data []BatchCreateWishItem `json:"data"`
+}
+
+// BatchCreateWishes godoc
+// @Summary      [后台]批量导入心愿
+// @Description  批量导入多个心愿
+// @Tags         心愿
+// @Accept       json
+// @Produce      json
+// @Param        request  body   BatchCreateWishRequest  true  "心愿信息数组"
+// @Success      201   {object}  map[string]interface{}  "返回导入结果"
+// @Failure      400   {object}  map[string]interface{}  "请求数据无效"
+// @Failure      500   {object}  map[string]interface{}  "服务器错误"
+// @Router       /api/v1/wishes/batch [post]
+func (c *WishController) BatchCreateWishes(ctx *gin.Context) {
+	var wishRequest BatchCreateWishRequest
+	if err := ctx.ShouldBindJSON(&wishRequest); err != nil {
+		ctx.JSON(400, utils.CreateResponse(nil, "无效的请求数据"))
+		return
+	}
+
+	// 检查请求数据
+	if len(wishRequest.Data) == 0 {
+		ctx.JSON(400, utils.CreateResponse(nil, "导入列表不能为空"))
+		return
+	}
+
+	// 转换为模型数组
+	wishes := make([]*models.Wish, 0, len(wishRequest.Data))
+	for _, item := range wishRequest.Data {
+		grade := item.Grade
+		photoURL := item.PhotoURL
+
+		wish := &models.Wish{
+			ChildName: item.ChildName,
+			Gender:    item.Gender,
+			Content:   item.Content,
+			Reason:    item.Reason,
+			Grade:     &grade,
+			PhotoURL:  &photoURL,
+			// 默认设置为公开
+			IsPublished: true,
+		}
+		wishes = append(wishes, wish)
+	}
+
+	// 批量创建心愿
+	if err := c.wishService.BatchCreateWishes(wishes); err != nil {
+		ctx.JSON(500, utils.CreateResponse(nil, "批量导入心愿失败"))
+		return
+	}
+
+	ctx.JSON(201, utils.CreateResponse(map[string]interface{}{
+		"success": true,
+		"count":   len(wishes),
+		"message": "批量导入心愿成功",
+	}))
 }

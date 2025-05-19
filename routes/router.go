@@ -51,6 +51,7 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 		protected.Use(middleware.JWTAuth())
 		{
 			protected.POST("/wishes", options.WishController.CreateWish)
+			protected.POST("/wishes/batch", options.WishController.BatchCreateWishes)
 			protected.DELETE("/wishes/:id", options.WishController.DeleteWish)
 			protected.PUT("/wishes/:id", options.WishController.UpdateWish)
 			protected.PUT("/wishes/:id/donor", options.WishController.ClaimWish)

@@ -29,10 +29,10 @@ func (s *WishService) GetWishes(filters map[string]any) ([]models.Wish, int64, e
 	if isDoneStr, ok := filters["isDone"].(string); ok && isDoneStr != "" {
 		if isBool, err := strconv.ParseBool(isDoneStr); err == nil {
 			if isBool {
-				// 已完成：active_record_id 不为空
+				// 已认领：active_record_id 不为空
 				query = query.Where("active_record_id IS NOT NULL")
 			} else {
-				// 未完成：active_record_id 为空
+				// 可认领：active_record_id 为空
 				query = query.Where("active_record_id IS NULL")
 			}
 		}
@@ -98,4 +98,15 @@ func (s *WishService) GetWishesByDonorID(donorID uint, pageIndex, pageSize int) 
 	}
 
 	return wishes, total, nil
+}
+
+func (s *WishService) BatchCreateWishes(wishes []*models.Wish) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		for _, wish := range wishes {
+			if err := tx.Create(wish).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
