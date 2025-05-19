@@ -510,6 +510,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "description": "按公开状态过滤,不传为全部",
+                        "name": "is-published",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "default": 1,
                         "description": "页码，默认1",
@@ -870,7 +876,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "description": "进度类型：creation, shipping, confirmation, delivery, receipt, platformGift, ownerGift, cancellation",
+                    "description": "进度类型：creation, shipping, confirmation, delivery, receipt, cancellation",
                     "type": "string"
                 }
             }

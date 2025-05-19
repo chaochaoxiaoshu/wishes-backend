@@ -79,8 +79,7 @@ definitions:
         description: 单号，如有
         type: string
       type:
-        description: 进度类型：creation, shipping, confirmation, delivery, receipt, platformGift,
-          ownerGift, cancellation
+        description: 进度类型：creation, shipping, confirmation, delivery, receipt, cancellation
         type: string
     type: object
   controllers.RecordDetailResponse:
@@ -709,6 +708,10 @@ paths:
         description: 按完成状态过滤,默认为false
         in: query
         name: is-done
+        type: boolean
+      - description: 按公开状态过滤,不传为全部
+        in: query
+        name: is-published
         type: boolean
       - default: 1
         description: 页码，默认1

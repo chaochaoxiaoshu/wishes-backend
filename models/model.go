@@ -36,12 +36,12 @@ const (
 type Wish struct {
 	Model
 
-	ChildName string `json:"childName"`
-	Gender    Gender `json:"gender"`
-	Content   string `json:"content"`
-	Reason    string `json:"reason"`
-	Grade     string `json:"grade,omitempty"`
-	PhotoURL  string `json:"photoUrl,omitempty"`
+	ChildName string  `json:"childName"`
+	Gender    Gender  `json:"gender"`
+	Content   string  `json:"content"`
+	Reason    string  `json:"reason"`
+	Grade     *string `json:"grade,omitempty"`
+	PhotoURL  *string `json:"photoUrl,omitempty"`
 
 	IsPublished bool `json:"isPublished" gorm:"default:false"`
 
@@ -74,31 +74,31 @@ type WishRecord struct {
 	DonorID uint  `json:"donorId,omitempty" gorm:"index"`
 	Donor   *User `json:"donor,omitempty" gorm:"foreignKey:DonorID"`
 
-	DonorName    string `json:"donorName,omitempty"`
-	DonorMobile  string `json:"donorMobile,omitempty"`
-	DonorAddress string `json:"donorAddress,omitempty"`
-	DonorComment string `json:"donorComment,omitempty"`
+	DonorName    string `json:"donorName"`
+	DonorMobile  string `json:"donorMobile"`
+	DonorAddress string `json:"donorAddress"`
+	DonorComment string `json:"donorComment"`
 
-	ShippingNumber string `json:"shippingNumber,omitempty"` // 寄送单号
-	ShippingTime   int64  `json:"shippingTime,omitempty"`   // 寄送时间
+	ShippingNumber *string `json:"shippingNumber,omitempty"` // 寄送单号
+	ShippingTime   *int64  `json:"shippingTime,omitempty"`   // 寄送时间
 
-	ConfirmationMessage string `json:"confirmationMessage,omitempty"` // 确认信息
-	ConfirmationPhotos  string `json:"confirmationPhotos,omitempty"`  // 确认照片数组
-	ConfirmationTime    int64  `json:"confirmationTime,omitempty"`    // 确认时间
+	ConfirmationMessage *string `json:"confirmationMessage,omitempty"` // 确认信息
+	ConfirmationPhotos  *string `json:"confirmationPhotos,omitempty"`  // 确认照片数组
+	ConfirmationTime    *int64  `json:"confirmationTime,omitempty"`    // 确认时间
 
-	DeliveryNumber string `json:"deliveryNumber,omitempty"` // 发货单号
-	DeliveryTime   int64  `json:"deliveryTime,omitempty"`   // 发货时间
+	DeliveryNumber *string `json:"deliveryNumber,omitempty"` // 发货单号
+	DeliveryTime   *int64  `json:"deliveryTime,omitempty"`   // 发货时间
 
-	ReceiptMessage string `json:"receiptMessage,omitempty"` // 签收信息
-	ReceiptPhotos  string `json:"receiptPhotos,omitempty"`  // 签收照片数组
-	ReceiptTime    int64  `json:"receiptTime,omitempty"`    // 签收时间
+	ReceiptMessage *string `json:"receiptMessage,omitempty"` // 签收信息
+	ReceiptPhotos  *string `json:"receiptPhotos,omitempty"`  // 签收照片数组
+	ReceiptTime    *int64  `json:"receiptTime,omitempty"`    // 签收时间
 
-	PlatformGiftMessage string `json:"platformGiftMessage,omitempty"` // 平台回礼信息
-	PlatformGiftPhotos  string `json:"platformGiftPhotos,omitempty"`  // 平台回礼照片数组
-	PlatformGiftTime    int64  `json:"platformGiftTime,omitempty"`    // 平台回礼时间
-	OwnerGiftMessage    string `json:"ownerGiftMessage,omitempty"`    // 心愿主人回礼信息
-	OwnerGiftPhotos     string `json:"ownerGiftPhotos,omitempty"`     // 心愿主人回礼照片数组
-	OwnerGiftTime       int64  `json:"ownerGiftTime,omitempty"`       // 心愿主人回礼时间
+	PlatformGiftMessage *string `json:"platformGiftMessage,omitempty"` // 平台回礼信息
+	PlatformGiftPhotos  *string `json:"platformGiftPhotos,omitempty"`  // 平台回礼照片数组
+	PlatformGiftTime    *int64  `json:"platformGiftTime,omitempty"`    // 平台回礼时间
+	OwnerGiftMessage    *string `json:"ownerGiftMessage,omitempty"`    // 心愿主人回礼信息
+	OwnerGiftPhotos     *string `json:"ownerGiftPhotos,omitempty"`     // 心愿主人回礼照片数组
+	OwnerGiftTime       *int64  `json:"ownerGiftTime,omitempty"`       // 心愿主人回礼时间
 
-	CancellationTime int64 `json:"cancellationTime,omitempty"` // 取消时间
+	CancellationTime *int64 `json:"cancellationTime,omitempty"` // 取消时间
 }

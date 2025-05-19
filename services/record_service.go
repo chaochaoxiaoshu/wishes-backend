@@ -105,62 +105,73 @@ func (s *RecordService) UpdateRecordStatus(recordID uint, newStatus models.WishR
 		switch newStatus {
 		case models.StatusPendingConfirmation:
 			if shippingNumber, ok := params["shippingNumber"].(string); ok && shippingNumber != "" {
-				record.ShippingNumber = shippingNumber
-				record.ShippingTime = time.Now().Unix()
+				record.ShippingNumber = &shippingNumber
+				now := time.Now().Unix()
+				record.ShippingTime = &now
 			} else {
 				return fmt.Errorf("转换为待确认状态需要提供寄送单号")
 			}
 		case models.StatusConfirmed:
 			if confirmationMessage, ok := params["confirmationMessage"].(string); ok {
-				record.ConfirmationMessage = confirmationMessage
+				record.ConfirmationMessage = &confirmationMessage
 			}
 			if confirmationPhotos, ok := params["confirmationPhotos"].(string); ok {
-				record.ConfirmationPhotos = confirmationPhotos
+				record.ConfirmationPhotos = &confirmationPhotos
 			}
-			record.ConfirmationTime = time.Now().Unix()
+			now := time.Now().Unix()
+			record.ConfirmationTime = &now
 		case models.StatusAwaitingReceipt:
 			if deliveryNumber, ok := params["deliveryNumber"].(string); ok && deliveryNumber != "" {
-				record.DeliveryNumber = deliveryNumber
-				record.DeliveryTime = time.Now().Unix()
+				record.DeliveryNumber = &deliveryNumber
+				now := time.Now().Unix()
+				record.DeliveryTime = &now
 			} else {
 				return fmt.Errorf("转换为待收货状态需要提供发货单号")
 			}
 		case models.StatusCompleted:
 			if receiptMessage, ok := params["receiptMessage"].(string); ok {
-				record.ReceiptMessage = receiptMessage
+				record.ReceiptMessage = &receiptMessage
 			}
 			if receiptPhotos, ok := params["receiptPhotos"].(string); ok {
-				record.ReceiptPhotos = receiptPhotos
+				record.ReceiptPhotos = &receiptPhotos
 			}
-			record.ReceiptTime = time.Now().Unix()
+			now := time.Now().Unix()
+			record.ReceiptTime = &now
 		case models.StatusGiftReturned:
 			// 更新消息和照片
 			if platformGiftMessage, ok := params["platformGiftMessage"].(string); ok {
-				record.PlatformGiftMessage = platformGiftMessage
+				record.PlatformGiftMessage = &platformGiftMessage
 				if platformGiftMessage != "" {
-					record.PlatformGiftTime = time.Now().Unix()
+					now := time.Now().Unix()
+					record.PlatformGiftTime = &now
 				}
 			}
 			if platformGiftPhotos, ok := params["platformGiftPhotos"].(string); ok {
-				record.PlatformGiftPhotos = platformGiftPhotos
-				if platformGiftPhotos != "" && record.PlatformGiftTime == 0 {
-					record.PlatformGiftTime = time.Now().Unix()
+				record.PlatformGiftPhotos = &platformGiftPhotos
+				// 需要先检查指针是否为 nil
+				if platformGiftPhotos != "" && (record.PlatformGiftTime == nil || *record.PlatformGiftTime == 0) {
+					now := time.Now().Unix()
+					record.PlatformGiftTime = &now
 				}
 			}
 			if ownerGiftMessage, ok := params["ownerGiftMessage"].(string); ok {
-				record.OwnerGiftMessage = ownerGiftMessage
+				record.OwnerGiftMessage = &ownerGiftMessage
 				if ownerGiftMessage != "" {
-					record.OwnerGiftTime = time.Now().Unix()
+					now := time.Now().Unix()
+					record.OwnerGiftTime = &now
 				}
 			}
 			if ownerGiftPhotos, ok := params["ownerGiftPhotos"].(string); ok {
-				record.OwnerGiftPhotos = ownerGiftPhotos
-				if ownerGiftPhotos != "" && record.OwnerGiftTime == 0 {
-					record.OwnerGiftTime = time.Now().Unix()
+				record.OwnerGiftPhotos = &ownerGiftPhotos
+				// 需要先检查指针是否为 nil
+				if ownerGiftPhotos != "" && (record.OwnerGiftTime == nil || *record.OwnerGiftTime == 0) {
+					now := time.Now().Unix()
+					record.OwnerGiftTime = &now
 				}
 			}
 		case models.StatusCancelled:
-			record.CancellationTime = time.Now().Unix()
+			now := time.Now().Unix()
+			record.CancellationTime = &now
 		}
 
 		return tx.Save(&record).Error

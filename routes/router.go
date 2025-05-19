@@ -45,10 +45,11 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 			admin.POST("/login", options.AuthController.AdminLogin)
 		}
 
+		v1.GET("/wishes", options.WishController.GetWishes)
+
 		protected := v1.Group("/")
 		protected.Use(middleware.JWTAuth())
 		{
-			protected.GET("/wishes", options.WishController.GetWishes)
 			protected.POST("/wishes", options.WishController.CreateWish)
 			protected.DELETE("/wishes/:id", options.WishController.DeleteWish)
 			protected.PUT("/wishes/:id", options.WishController.UpdateWish)

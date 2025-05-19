@@ -196,11 +196,11 @@ func (c *RecordController) GetRecordByID(ctx *gin.Context) {
 		var progressItems []ProgressItem
 
 		// 取消
-		if record.CancellationTime > 0 {
+		if record.CancellationTime != nil && *record.CancellationTime > 0 {
 			progressItems = append(progressItems, ProgressItem{
 				Type:      "cancellation",
 				Status:    string(models.StatusCancelled),
-				Timestamp: record.CancellationTime,
+				Timestamp: *record.CancellationTime,
 			})
 		}
 
@@ -227,44 +227,44 @@ func (c *RecordController) GetRecordByID(ctx *gin.Context) {
 		// }
 
 		// 签收
-		if record.ReceiptTime > 0 {
+		if record.ReceiptTime != nil && *record.ReceiptTime > 0 {
 			progressItems = append(progressItems, ProgressItem{
 				Type:      "receipt",
 				Status:    string(models.StatusCompleted),
-				Timestamp: record.ReceiptTime,
-				Message:   record.ReceiptMessage,
-				Photos:    record.ReceiptPhotos,
+				Timestamp: *record.ReceiptTime,
+				Message:   *record.ReceiptMessage,
+				Photos:    *record.ReceiptPhotos,
 			})
 		}
 
 		// 发货
-		if record.DeliveryTime > 0 {
+		if record.DeliveryTime != nil && *record.DeliveryTime > 0 {
 			progressItems = append(progressItems, ProgressItem{
 				Type:           "delivery",
 				Status:         string(models.StatusAwaitingReceipt),
-				Timestamp:      record.DeliveryTime,
-				TrackingNumber: record.DeliveryNumber,
+				Timestamp:      *record.DeliveryTime,
+				TrackingNumber: *record.DeliveryNumber,
 			})
 		}
 
 		// 确认
-		if record.ConfirmationTime > 0 {
+		if record.ConfirmationTime != nil && *record.ConfirmationTime > 0 {
 			progressItems = append(progressItems, ProgressItem{
 				Type:      "confirmation",
 				Status:    string(models.StatusConfirmed),
-				Timestamp: record.ConfirmationTime,
-				Message:   record.ConfirmationMessage,
-				Photos:    record.ConfirmationPhotos,
+				Timestamp: *record.ConfirmationTime,
+				Message:   *record.ConfirmationMessage,
+				Photos:    *record.ConfirmationPhotos,
 			})
 		}
 
 		// 寄送
-		if record.ShippingTime > 0 {
+		if record.ShippingTime != nil && *record.ShippingTime > 0 {
 			progressItems = append(progressItems, ProgressItem{
 				Type:           "shipping",
 				Status:         string(models.StatusPendingConfirmation),
-				Timestamp:      record.ShippingTime,
-				TrackingNumber: record.ShippingNumber,
+				Timestamp:      *record.ShippingTime,
+				TrackingNumber: *record.ShippingNumber,
 			})
 		}
 

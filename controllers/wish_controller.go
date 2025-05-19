@@ -117,8 +117,8 @@ func (c *WishController) CreateWish(ctx *gin.Context) {
 		Gender:      wish.Gender,
 		Content:     wish.Content,
 		Reason:      wish.Reason,
-		Grade:       wish.Grade,
-		PhotoURL:    wish.PhotoURL,
+		Grade:       &wish.Grade,
+		PhotoURL:    &wish.PhotoURL,
 		IsPublished: wish.IsPublished,
 	}
 
@@ -202,8 +202,8 @@ func (c *WishController) UpdateWish(ctx *gin.Context) {
 	wish.Gender = wishInfo.Gender
 	wish.Content = wishInfo.Content
 	wish.Reason = wishInfo.Reason
-	wish.Grade = wishInfo.Grade
-	wish.PhotoURL = wishInfo.PhotoURL
+	wish.Grade = &wishInfo.Grade
+	wish.PhotoURL = &wishInfo.PhotoURL
 	wish.IsPublished = wishInfo.IsPublished
 
 	if err := c.wishService.UpdateWish(wish); err != nil {
