@@ -588,8 +588,9 @@
         },
         "/api/v1/wishes/batch": {
             "post": {
-                "description": "批量导入多个心愿",
+                "description": "批量导入多个心愿，支持JSON和XLSX文件",
                 "consumes": [
+                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -601,13 +602,18 @@
                 "summary": "[后台]批量导入心愿",
                 "parameters": [
                     {
-                        "description": "心愿信息数组",
+                        "description": "JSON格式的心愿信息数组",
                         "name": "request",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/controllers.BatchCreateWishRequest"
                         }
+                    },
+                    {
+                        "type": "file",
+                        "description": "Excel文件，支持 .xlsx 和 .xls",
+                        "name": "file",
+                        "in": "formData"
                     }
                 ],
                 "responses": {

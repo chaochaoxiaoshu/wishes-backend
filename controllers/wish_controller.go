@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xuri/excelize/v2"
 
 	"wishes/models"
 	"wishes/services"
@@ -315,48 +318,168 @@ type BatchCreateWishRequest struct {
 
 // BatchCreateWishes godoc
 // @Summary      [后台]批量导入心愿
-// @Description  批量导入多个心愿
+// @Description  批量导入多个心愿，支持JSON和XLSX文件
 // @Tags         心愿
+// @Accept       multipart/form-data
 // @Accept       json
 // @Produce      json
-// @Param        request  body   BatchCreateWishRequest  true  "心愿信息数组"
+// @Param        request  body   BatchCreateWishRequest  false  "JSON格式的心愿信息数组"
+// @Param        file     formData  file  false  "Excel文件，支持 .xlsx 和 .xls"
 // @Success      201   {object}  map[string]interface{}  "返回导入结果"
 // @Failure      400   {object}  map[string]interface{}  "请求数据无效"
 // @Failure      500   {object}  map[string]interface{}  "服务器错误"
 // @Router       /api/v1/wishes/batch [post]
 func (c *WishController) BatchCreateWishes(ctx *gin.Context) {
-	var wishRequest BatchCreateWishRequest
-	if err := ctx.ShouldBindJSON(&wishRequest); err != nil {
-		ctx.JSON(400, utils.CreateResponse(nil, "无效的请求数据"))
-		return
-	}
+	contentType := ctx.GetHeader("Content-Type")
 
-	// 检查请求数据
-	if len(wishRequest.Data) == 0 {
-		ctx.JSON(400, utils.CreateResponse(nil, "导入列表不能为空"))
-		return
-	}
+	var wishes []*models.Wish
 
-	// 转换为模型数组
-	wishes := make([]*models.Wish, 0, len(wishRequest.Data))
-	for _, item := range wishRequest.Data {
-		grade := item.Grade
-		photoURL := item.PhotoURL
-
-		wish := &models.Wish{
-			ChildName: item.ChildName,
-			Gender:    item.Gender,
-			Content:   item.Content,
-			Reason:    item.Reason,
-			Grade:     &grade,
-			PhotoURL:  &photoURL,
-			// 默认设置为公开
-			IsPublished: true,
+	if strings.Contains(contentType, "application/json") {
+		var wishRequest BatchCreateWishRequest
+		if err := ctx.ShouldBindJSON(&wishRequest); err != nil {
+			ctx.JSON(400, utils.CreateResponse(nil, "无效的请求数据"))
+			return
 		}
-		wishes = append(wishes, wish)
+
+		if len(wishRequest.Data) == 0 {
+			ctx.JSON(400, utils.CreateResponse(nil, "导入列表不能为空"))
+			return
+		}
+
+		wishes = make([]*models.Wish, 0, len(wishRequest.Data))
+		for _, item := range wishRequest.Data {
+			grade := item.Grade
+			photoURL := item.PhotoURL
+
+			wish := &models.Wish{
+				ChildName: item.ChildName,
+				Gender:    item.Gender,
+				Content:   item.Content,
+				Reason:    item.Reason,
+				Grade:     &grade,
+				PhotoURL:  &photoURL,
+				// 默认设置为公开
+				IsPublished: true,
+			}
+			wishes = append(wishes, wish)
+		}
+	} else if strings.Contains(contentType, "multipart/form-data") {
+		file, err := ctx.FormFile("file")
+		if err != nil {
+			ctx.JSON(400, utils.CreateResponse(nil, "无法获取上传的文件"))
+			return
+		}
+
+		fileName := strings.ToLower(file.Filename)
+		if !strings.HasSuffix(fileName, ".xlsx") && !strings.HasSuffix(fileName, ".xls") {
+			ctx.JSON(400, utils.CreateResponse(nil, "仅支持Excel文件格式(.xlsx或.xls)"))
+			return
+		}
+
+		fileContent, err := file.Open()
+		if err != nil {
+			ctx.JSON(500, utils.CreateResponse(nil, "无法打开上传文件"))
+			return
+		}
+		defer fileContent.Close()
+
+		xlsx, err := excelize.OpenReader(fileContent)
+		if err != nil {
+			ctx.JSON(500, utils.CreateResponse(nil, "解析Excel文件失败"))
+			return
+		}
+		defer xlsx.Close()
+
+		wishes = make([]*models.Wish, 0)
+		sheetList := xlsx.GetSheetList()
+
+		for _, sheetName := range sheetList {
+			rows, err := xlsx.GetRows(sheetName)
+			if err != nil {
+				ctx.JSON(500, utils.CreateResponse(nil, fmt.Sprintf("读取sheet '%s' 失败", sheetName)))
+				return
+			}
+
+			// 跳过空sheet
+			if len(rows) <= 1 {
+				continue
+			}
+
+			// 查找标题行并确定列索引
+			headerRow := rows[0]
+			nameColIndex := -1
+			genderColIndex := -1
+			contentColIndex := -1
+			reasonColIndex := -1
+
+			// 寻找必要的列
+			for i, cell := range headerRow {
+				cell = strings.TrimSpace(strings.ToLower(cell))
+				switch {
+				case cell == "姓名" || cell == "name" || cell == "学生姓名" || cell == "儿童姓名" || cell == "childname":
+					nameColIndex = i
+				case cell == "性别" || cell == "gender" || cell == "sex":
+					genderColIndex = i
+				case cell == "心愿" || cell == "wish" || cell == "愿望" || cell == "心愿内容" || cell == "content" || cell == "wishcontent":
+					contentColIndex = i
+				case cell == "理由" || cell == "原因" || cell == "reason" || cell == "wish reason" || cell == "心愿理由":
+					reasonColIndex = i
+				}
+			}
+
+			// 检查必要的列是否都找到了
+			if nameColIndex == -1 || genderColIndex == -1 || contentColIndex == -1 || reasonColIndex == -1 {
+				ctx.JSON(400, utils.CreateResponse(nil, fmt.Sprintf(
+					"sheet '%s' 中未找到必要的列。需要包含姓名、性别、心愿和理由列", sheetName)))
+				return
+			}
+
+			// 处理数据行
+			for i := 1; i < len(rows); i++ {
+				row := rows[i]
+				// 确保行有足够的数据
+				if len(row) <= max(nameColIndex, genderColIndex, contentColIndex, reasonColIndex) {
+					continue
+				}
+
+				childName := strings.TrimSpace(row[nameColIndex])
+				genderStr := strings.TrimSpace(row[genderColIndex])
+				content := strings.TrimSpace(row[contentColIndex])
+				reason := strings.TrimSpace(row[reasonColIndex])
+
+				// 跳过空行
+				if childName == "" || genderStr == "" || content == "" || reason == "" {
+					continue
+				}
+
+				// 解析性别
+				var gender models.Gender
+				if genderStr == "男" {
+					gender = "male"
+				} else if genderStr == "女" {
+					gender = "female"
+				}
+
+				wish := &models.Wish{
+					ChildName:   childName,
+					Gender:      gender,
+					Content:     content,
+					Reason:      reason,
+					IsPublished: true,
+				}
+				wishes = append(wishes, wish)
+			}
+		}
+
+		if len(wishes) == 0 {
+			ctx.JSON(400, utils.CreateResponse(nil, "Excel文件中没有有效的心愿数据"))
+			return
+		}
+	} else {
+		ctx.JSON(400, utils.CreateResponse(nil, "不支持的Content-Type，请使用application/json或multipart/form-data"))
+		return
 	}
 
-	// 批量创建心愿
 	if err := c.wishService.BatchCreateWishes(wishes); err != nil {
 		ctx.JSON(500, utils.CreateResponse(nil, "批量导入心愿失败"))
 		return
@@ -367,4 +490,15 @@ func (c *WishController) BatchCreateWishes(ctx *gin.Context) {
 		"count":   len(wishes),
 		"message": "批量导入心愿成功",
 	}))
+}
+
+// 辅助函数，用于找出最大的索引值
+func max(values ...int) int {
+	maxVal := values[0]
+	for _, v := range values[1:] {
+		if v > maxVal {
+			maxVal = v
+		}
+	}
+	return maxVal
 }
