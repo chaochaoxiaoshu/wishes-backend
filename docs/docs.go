@@ -87,13 +87,13 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "页码，默认1",
-                        "name": "page-index",
+                        "name": "pageIndex",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "每页数量，默认10",
-                        "name": "page-size",
+                        "name": "pageSize",
                         "in": "query"
                     },
                     {
@@ -388,13 +388,13 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "页码，默认1",
-                        "name": "page-index",
+                        "name": "pageIndex",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "每页数量，默认10",
-                        "name": "page-size",
+                        "name": "pageSize",
                         "in": "query"
                     }
                 ],
@@ -506,27 +506,27 @@ const docTemplate = `{
                         "type": "boolean",
                         "default": false,
                         "description": "按完成状态过滤,默认为false",
-                        "name": "is-done",
+                        "name": "isDone",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
                         "description": "按公开状态过滤,不传为全部",
-                        "name": "is-published",
+                        "name": "isPublished",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
                         "description": "页码，默认1",
-                        "name": "page-index",
+                        "name": "pageIndex",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 10,
                         "description": "每页数量，默认10",
-                        "name": "page-size",
+                        "name": "pageSize",
                         "in": "query"
                     }
                 ],

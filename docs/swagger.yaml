@@ -449,11 +449,11 @@ paths:
       parameters:
       - description: 页码，默认1
         in: query
-        name: page-index
+        name: pageIndex
         type: integer
       - description: 每页数量，默认10
         in: query
-        name: page-size
+        name: pageSize
         type: integer
       - description: 状态过滤，可选值：pending_shipment, pending_confirmation等
         in: query
@@ -651,11 +651,11 @@ paths:
       parameters:
       - description: 页码，默认1
         in: query
-        name: page-index
+        name: pageIndex
         type: integer
       - description: 每页数量，默认10
         in: query
-        name: page-size
+        name: pageSize
         type: integer
       produces:
       - application/json
@@ -729,21 +729,21 @@ paths:
       - default: false
         description: 按完成状态过滤,默认为false
         in: query
-        name: is-done
+        name: isDone
         type: boolean
       - description: 按公开状态过滤,不传为全部
         in: query
-        name: is-published
+        name: isPublished
         type: boolean
       - default: 1
         description: 页码，默认1
         in: query
-        name: page-index
+        name: pageIndex
         type: integer
       - default: 10
         description: 每页数量，默认10
         in: query
-        name: page-size
+        name: pageSize
         type: integer
       produces:
       - application/json

@@ -33,8 +33,8 @@ type GetWishRecordsResponse struct {
 // @Tags         记录
 // @Accept       json
 // @Produce      json
-// @Param        page-index    query    int     false  "页码，默认1"
-// @Param        page-size     query    int     false  "每页数量，默认10"
+// @Param        pageIndex    query    int     false  "页码，默认1"
+// @Param        pageSize     query    int     false  "每页数量，默认10"
 // @Success      200  {object}  controllers.GetWishesResponse  "返回用户点亮的心愿列表"
 // @Failure      401  {object}  map[string]interface{}  "用户未登录"
 // @Failure      500  {object}  map[string]interface{}  "服务器错误"
@@ -52,13 +52,13 @@ func (c *RecordController) GetWishRecords(ctx *gin.Context) {
 		return
 	}
 
-	pageIndexStr := ctx.DefaultQuery("page-index", "1")
+	pageIndexStr := ctx.DefaultQuery("pageIndex", "1")
 	pageIndex, err := strconv.Atoi(pageIndexStr)
 	if err != nil || pageIndex < 1 {
 		pageIndex = 1
 	}
 
-	pageSizeStr := ctx.DefaultQuery("page-size", "10")
+	pageSizeStr := ctx.DefaultQuery("pageSize", "10")
 	pageSize, err := strconv.Atoi(pageSizeStr)
 	if err != nil || pageSize < 1 || pageSize > 100 {
 		pageSize = 10
@@ -84,8 +84,8 @@ func (c *RecordController) GetWishRecords(ctx *gin.Context) {
 // @Tags         记录
 // @Accept       json
 // @Produce      json
-// @Param        page-index    query    int     false  "页码，默认1"
-// @Param        page-size     query    int     false  "每页数量，默认10"
+// @Param        pageIndex    query    int     false  "页码，默认1"
+// @Param        pageSize     query    int     false  "每页数量，默认10"
 // @Param        status        query    string  false  "状态过滤，可选值：pending_shipment, pending_confirmation等"
 // @Success      200  {object}  controllers.GetWishRecordsResponse  "返回记录列表"
 // @Failure      401  {object}  map[string]interface{}  "用户未登录或无权限"
@@ -98,13 +98,13 @@ func (c *RecordController) GetAllRecords(ctx *gin.Context) {
 		return
 	}
 
-	pageIndexStr := ctx.DefaultQuery("page-index", "1")
+	pageIndexStr := ctx.DefaultQuery("pageIndex", "1")
 	pageIndex, err := strconv.Atoi(pageIndexStr)
 	if err != nil || pageIndex < 1 {
 		pageIndex = 1
 	}
 
-	pageSizeStr := ctx.DefaultQuery("page-size", "10")
+	pageSizeStr := ctx.DefaultQuery("pageSize", "10")
 	pageSize, err := strconv.Atoi(pageSizeStr)
 	if err != nil || pageSize < 1 || pageSize > 100 {
 		pageSize = 10

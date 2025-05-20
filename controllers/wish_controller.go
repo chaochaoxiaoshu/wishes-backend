@@ -43,19 +43,19 @@ type GetWishesResponse struct {
 // @Accept       json
 // @Produce      json
 // @Param        content      query     string  false  "按心愿内容模糊搜索"
-// @Param        is-done      query     bool    false  "按完成状态过滤,默认为false"  default(false)
-// @Param        is-published query     bool    false  "按公开状态过滤,不传为全部"
-// @Param        page-index   query     int     false  "页码，默认1"  default(1)
-// @Param        page-size    query     int     false  "每页数量，默认10"  default(10)
+// @Param        isDone      query     bool    false  "按完成状态过滤,默认为false"  default(false)
+// @Param        isPublished query     bool    false  "按公开状态过滤,不传为全部"
+// @Param        pageIndex   query     int     false  "页码，默认1"  default(1)
+// @Param        pageSize    query     int     false  "每页数量，默认10"  default(10)
 // @Success      200  {object}  GetWishesResponse  "返回心愿列表和分页信息"
 // @Failure      500  {object}  map[string]interface{}  "服务器错误"
 // @Router       /api/v1/wishes [get]
 func (c *WishController) GetWishes(ctx *gin.Context) {
 	content := ctx.Query("content")
-	isDoneStr := ctx.DefaultQuery("is-done", "false")
-	isPublishedStr := ctx.Query("is-published") // 不设置默认值，不传表示全部
-	pageIndexStr := ctx.DefaultQuery("page-index", "1")
-	pageSizeStr := ctx.DefaultQuery("page-size", "10")
+	isDoneStr := ctx.DefaultQuery("isDone", "false")
+	isPublishedStr := ctx.Query("isPublished") // 不设置默认值，不传表示全部
+	pageIndexStr := ctx.DefaultQuery("pageIndex", "1")
+	pageSizeStr := ctx.DefaultQuery("pageSize", "10")
 
 	pageIndex, err := strconv.Atoi(pageIndexStr)
 	if err != nil || pageIndex < 1 {
@@ -485,11 +485,7 @@ func (c *WishController) BatchCreateWishes(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(201, utils.CreateResponse(map[string]interface{}{
-		"success": true,
-		"count":   len(wishes),
-		"message": "批量导入心愿成功",
-	}))
+	ctx.JSON(201, utils.CreateResponse("批量导入心愿成功"))
 }
 
 // 辅助函数，用于找出最大的索引值
