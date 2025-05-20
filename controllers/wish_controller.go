@@ -465,6 +465,7 @@ func (c *WishController) BatchCreateWishes(ctx *gin.Context) {
 					Gender:      gender,
 					Content:     content,
 					Reason:      reason,
+					Grade:       &sheetName,
 					IsPublished: true,
 				}
 				wishes = append(wishes, wish)
