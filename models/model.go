@@ -11,9 +11,9 @@ type Model struct {
 // @Description 微信小程序用户信息
 type User struct {
 	Model
-	WechatOpenID  string `json:"wechatOpenId,omitempty" gorm:"uniqueIndex"`
-	WechatUnionID string `json:"wechatUnionId,omitempty"`
-	AvatarURL     string `json:"avatarUrl,omitempty"`
+	WechatOpenID  string `json:"wechatOpenId,omitempty" gorm:"uniqueIndex;column:wechat_openid"`
+	WechatUnionID string `json:"wechatUnionId,omitempty" gorm:"column:wechat_unionid"`
+	AvatarURL     string `json:"avatarUrl,omitempty" gorm:"column:avatar_url"`
 	Nickname      string `json:"nickname,omitempty"`
 }
 
