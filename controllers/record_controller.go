@@ -397,3 +397,81 @@ func (c *RecordController) UpdateRecordStatus(ctx *gin.Context) {
 
 	ctx.JSON(200, utils.CreateResponse(updatedRecord))
 }
+
+type UpdateShippingInfoRequest struct {
+	DonorName    string `json:"donorName" binding:"required"`
+	DonorMobile  string `json:"donorMobile" binding:"required"`
+	DonorAddress string `json:"donorAddress" binding:"required"`
+}
+
+// UpdateShippingInfo godoc
+// @Summary      [小程序/后台]更新心愿认领记录的收货信息
+// @Description  更新收货人姓名、手机号和地址
+// @Tags         记录
+// @Accept       json
+// @Produce      json
+// @Param        id      path      int                        true  "记录ID"
+// @Param        params  body      UpdateShippingInfoRequest  true  "收货信息"
+// @Success      200     {object}  models.WishRecord          "返回更新后的记录"
+// @Failure      400     {object}  map[string]interface{}     "参数错误"
+// @Failure      401     {object}  map[string]interface{}     "未登录或无权限"
+// @Failure      404     {object}  map[string]interface{}     "记录不存在"
+// @Failure      500     {object}  map[string]interface{}     "服务器错误"
+// @Router       /api/v1/records/{id}/shipping-info [put]
+func (c *RecordController) UpdateShippingInfo(ctx *gin.Context) {
+	// 获取路径参数中的ID
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		ctx.JSON(400, utils.CreateResponse(nil, "无效的记录ID"))
+		return
+	}
+
+	// 获取用户ID和类型
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		ctx.JSON(401, utils.CreateResponse(nil, "登录已过期"))
+		return
+	}
+
+	// 获取记录详情，检查是否存在
+	record, err := c.recordService.GetRecordByIDWithoutRecursion(uint(id))
+	if err != nil {
+		ctx.JSON(404, utils.CreateResponse(nil, "记录不存在"))
+		return
+	}
+
+	// 判断是否有权限修改（只有记录捐赠者或管理员可以修改）
+	userTypeValue, _ := ctx.Get("userType")
+	userType, _ := userTypeValue.(string)
+
+	isAdmin := userType == "admin"
+	isDonor := record.DonorID == userID.(uint)
+
+	if !isAdmin && !isDonor {
+		ctx.JSON(401, utils.CreateResponse(nil, "无权修改此记录"))
+		return
+	}
+
+	// 解析请求体
+	var req UpdateShippingInfoRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(400, utils.CreateResponse(nil, "无效的请求参数"))
+		return
+	}
+
+	// 更新收货信息
+	if err := c.recordService.UpdateShippingInfo(uint(id), req.DonorName, req.DonorMobile, req.DonorAddress); err != nil {
+		ctx.JSON(500, utils.CreateResponse(nil, "更新收货信息失败"))
+		return
+	}
+
+	// 获取更新后的记录
+	updatedRecord, err := c.recordService.GetRecordByIDWithoutRecursion(uint(id))
+	if err != nil {
+		ctx.JSON(500, utils.CreateResponse(nil, "获取更新后的记录失败"))
+		return
+	}
+
+	ctx.JSON(200, utils.CreateResponse(updatedRecord))
+}

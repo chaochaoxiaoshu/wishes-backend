@@ -60,6 +60,7 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 
 			protected.GET("/records", options.RecordController.GetAllRecords)
 			protected.PUT("/records/:id/status", options.RecordController.UpdateRecordStatus)
+			protected.PUT("/records/:id/shipping-info", options.RecordController.UpdateShippingInfo)
 
 			protected.GET("/users/admin", options.UserController.GetAdminUsers)
 			protected.GET("/users/regular", options.UserController.GetNonAdminUsers)

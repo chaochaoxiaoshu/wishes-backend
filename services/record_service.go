@@ -187,6 +187,23 @@ func (s *RecordService) UpdateRecordStatus(recordID uint, newStatus models.WishR
 	})
 }
 
+// UpdateShippingInfo 更新收货信息
+func (s *RecordService) UpdateShippingInfo(recordID uint, donorName, donorMobile, donorAddress string) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		var record models.WishRecord
+		if err := tx.First(&record, recordID).Error; err != nil {
+			return err
+		}
+
+		// 更新收货信息
+		record.DonorName = donorName
+		record.DonorMobile = donorMobile
+		record.DonorAddress = donorAddress
+
+		return tx.Save(&record).Error
+	})
+}
+
 // // 判断状态转换是否合法
 // func isValidStatusTransition(currentStatus, newStatus models.WishRecordStatus) bool {
 // 	// 根据业务流程定义合法的状态转换
