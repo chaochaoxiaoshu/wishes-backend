@@ -44,8 +44,12 @@ func (s *RecordService) GetAllRecords(pageIndex, pageSize int, status string) ([
 	return records, total, nil
 }
 
-func (s *RecordService) GetRecordsByUserID(userID uint, pageIndex, pageSize int) ([]models.WishRecord, int64, error) {
+func (s *RecordService) GetRecordsByUserID(userID uint, pageIndex, pageSize int, status string) ([]models.WishRecord, int64, error) {
 	query := s.db.Model(&models.WishRecord{}).Where("donor_id = ?", userID)
+
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {

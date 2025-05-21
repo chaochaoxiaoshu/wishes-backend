@@ -64,7 +64,9 @@ func (c *RecordController) GetWishRecords(ctx *gin.Context) {
 		pageSize = 10
 	}
 
-	records, total, err := c.recordService.GetRecordsByUserID(userID.(uint), pageIndex, pageSize)
+	status := ctx.Query("status")
+
+	records, total, err := c.recordService.GetRecordsByUserID(userID.(uint), pageIndex, pageSize, status)
 	if err != nil {
 		ctx.JSON(500, utils.CreateResponse(nil, "获取心愿列表失败"))
 		return
