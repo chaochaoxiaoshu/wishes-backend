@@ -13,6 +13,7 @@ type SetupRouterOptions struct {
 	AuthController   *controllers.AuthController
 	WishController   *controllers.WishController
 	RecordController *controllers.RecordController
+	UserController   *controllers.UserController
 }
 
 func SetupRouter(options SetupRouterOptions) *gin.Engine {
@@ -58,6 +59,10 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 
 			protected.GET("/records", options.RecordController.GetAllRecords)
 			protected.PUT("/records/:id/status", options.RecordController.UpdateRecordStatus)
+
+			protected.GET("/users/admin", options.UserController.GetAdminUsers)
+			protected.GET("/users/regular", options.UserController.GetNonAdminUsers)
+			protected.PUT("/users/:id/admin", options.UserController.UpdateUserAdmin)
 		}
 	}
 

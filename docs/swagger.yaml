@@ -541,122 +541,6 @@ paths:
       summary: '[后台]管理员注册'
       tags:
       - 管理员
-  /api/v1/admin/users/{id}/admin:
-    put:
-      consumes:
-      - application/json
-      description: 设置或取消用户的管理员权限
-      parameters:
-      - description: 用户ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 请求数据
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.UpdateUserAdminRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 更新成功
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: 请求数据错误
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: 用户未登录或无权限
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: 用户不存在
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: 服务器错误
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 更新用户管理员权限
-      tags:
-      - 用户管理
-  /api/v1/admin/users/admin:
-    get:
-      consumes:
-      - application/json
-      description: 获取所有具有管理员权限的用户
-      parameters:
-      - description: 页码，默认1
-        in: query
-        name: pageIndex
-        type: integer
-      - description: 每页数量，默认10
-        in: query
-        name: pageSize
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回管理员用户列表
-          schema:
-            $ref: '#/definitions/controllers.GetAdminUsersResponse'
-        "401":
-          description: 用户未登录或无权限
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: 服务器错误
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取所有拥有管理员权限的用户
-      tags:
-      - 用户管理
-  /api/v1/admin/users/regular:
-    get:
-      consumes:
-      - application/json
-      description: 获取所有不具有管理员权限的普通用户
-      parameters:
-      - description: 页码，默认1
-        in: query
-        name: pageIndex
-        type: integer
-      - description: 每页数量，默认10
-        in: query
-        name: pageSize
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回普通用户列表
-          schema:
-            $ref: '#/definitions/controllers.GetAdminUsersResponse'
-        "401":
-          description: 用户未登录或无权限
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: 服务器错误
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取所有不拥有管理员权限的用户
-      tags:
-      - 用户管理
   /api/v1/records/{id}:
     get:
       consumes:
@@ -850,6 +734,122 @@ paths:
       summary: '[小程序]更新微信用户信息'
       tags:
       - 用户
+  /api/v1/users/{id}/admin:
+    put:
+      consumes:
+      - application/json
+      description: 设置或取消用户的管理员权限
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 请求数据
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateUserAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求数据错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 用户未登录或无权限
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 用户不存在
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新用户管理员权限
+      tags:
+      - 用户管理
+  /api/v1/users/admin:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有具有管理员权限的用户
+      parameters:
+      - description: 页码，默认1
+        in: query
+        name: pageIndex
+        type: integer
+      - description: 每页数量，默认10
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回管理员用户列表
+          schema:
+            $ref: '#/definitions/controllers.GetAdminUsersResponse'
+        "401":
+          description: 用户未登录或无权限
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有拥有管理员权限的用户
+      tags:
+      - 用户管理
+  /api/v1/users/regular:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有不具有管理员权限的普通用户
+      parameters:
+      - description: 页码，默认1
+        in: query
+        name: pageIndex
+        type: integer
+      - description: 每页数量，默认10
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回普通用户列表
+          schema:
+            $ref: '#/definitions/controllers.GetAdminUsersResponse'
+        "401":
+          description: 用户未登录或无权限
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有不拥有管理员权限的用户
+      tags:
+      - 用户管理
   /api/v1/wishes:
     get:
       consumes:

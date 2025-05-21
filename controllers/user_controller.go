@@ -36,7 +36,7 @@ type GetAdminUsersResponse struct {
 // @Success      200  {object}  controllers.GetAdminUsersResponse  "返回管理员用户列表"
 // @Failure      401  {object}  map[string]interface{}  "用户未登录或无权限"
 // @Failure      500  {object}  map[string]interface{}  "服务器错误"
-// @Router       /api/v1/admin/users/admin [get]
+// @Router       /api/v1/users/admin [get]
 func (c *UserController) GetAdminUsers(ctx *gin.Context) {
 	userType, exists := ctx.Get("userType")
 	if !exists || userType != "admin" {
@@ -81,7 +81,7 @@ func (c *UserController) GetAdminUsers(ctx *gin.Context) {
 // @Success      200  {object}  controllers.GetAdminUsersResponse  "返回普通用户列表"
 // @Failure      401  {object}  map[string]interface{}  "用户未登录或无权限"
 // @Failure      500  {object}  map[string]interface{}  "服务器错误"
-// @Router       /api/v1/admin/users/regular [get]
+// @Router       /api/v1/users/regular [get]
 func (c *UserController) GetNonAdminUsers(ctx *gin.Context) {
 	userType, exists := ctx.Get("userType")
 	if !exists || userType != "admin" {
@@ -133,7 +133,7 @@ type UpdateUserAdminRequest struct {
 // @Failure      401  {object}  map[string]interface{}  "用户未登录或无权限"
 // @Failure      404  {object}  map[string]interface{}  "用户不存在"
 // @Failure      500  {object}  map[string]interface{}  "服务器错误"
-// @Router       /api/v1/admin/users/{id}/admin [put]
+// @Router       /api/v1/users/{id}/admin [put]
 func (c *UserController) UpdateUserAdmin(ctx *gin.Context) {
 	userType, exists := ctx.Get("userType")
 	if !exists || userType != "admin" {
