@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"wishes/models"
 
 	"gorm.io/gorm"
@@ -30,6 +31,39 @@ func (s *UserService) GetUsers(pageIndex, pageSize int, isAdmin bool) ([]models.
 	if isAdmin {
 		query = query.Where("is_admin = true")
 	}
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (pageIndex - 1) * pageSize
+
+	var users []models.User
+	if err := query.Order("created_at DESC").Limit(pageSize).Offset(offset).Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
+}
+
+func (s *UserService) UpdateUserAdminStatus(userID uint, isAdmin bool) error {
+	result := s.db.Model(&models.User{}).Where("id = ?", userID).Update("is_admin", isAdmin)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("未找到ID为%d的用户", userID)
+	}
+	return nil
+}
+
+func (s *UserService) GetAdminUsers(pageIndex, pageSize int) ([]models.User, int64, error) {
+	return s.GetUsers(pageIndex, pageSize, true)
+}
+
+func (s *UserService) GetNonAdminUsers(pageIndex, pageSize int) ([]models.User, int64, error) {
+	query := s.db.Model(&models.User{}).Where("is_admin = ?", false)
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {

@@ -187,23 +187,23 @@ func (s *RecordService) UpdateRecordStatus(recordID uint, newStatus models.WishR
 	})
 }
 
-// 判断状态转换是否合法
-func isValidStatusTransition(currentStatus, newStatus models.WishRecordStatus) bool {
-	// 根据业务流程定义合法的状态转换
-	validTransitions := map[models.WishRecordStatus][]models.WishRecordStatus{
-		models.StatusPendingShipment:     {models.StatusPendingConfirmation, models.StatusCancelled},
-		models.StatusPendingConfirmation: {models.StatusConfirmed, models.StatusCancelled},
-		models.StatusConfirmed:           {models.StatusAwaitingReceipt, models.StatusCancelled},
-		models.StatusAwaitingReceipt:     {models.StatusCompleted, models.StatusCancelled},
-		models.StatusCompleted:           {models.StatusGiftReturned},
-		models.StatusGiftReturned:        {},
-		models.StatusCancelled:           {},
-	}
+// // 判断状态转换是否合法
+// func isValidStatusTransition(currentStatus, newStatus models.WishRecordStatus) bool {
+// 	// 根据业务流程定义合法的状态转换
+// 	validTransitions := map[models.WishRecordStatus][]models.WishRecordStatus{
+// 		models.StatusPendingShipment:     {models.StatusPendingConfirmation, models.StatusCancelled},
+// 		models.StatusPendingConfirmation: {models.StatusConfirmed, models.StatusCancelled},
+// 		models.StatusConfirmed:           {models.StatusAwaitingReceipt, models.StatusCancelled},
+// 		models.StatusAwaitingReceipt:     {models.StatusCompleted, models.StatusCancelled},
+// 		models.StatusCompleted:           {models.StatusGiftReturned},
+// 		models.StatusGiftReturned:        {},
+// 		models.StatusCancelled:           {},
+// 	}
 
-	for _, validStatus := range validTransitions[currentStatus] {
-		if validStatus == newStatus {
-			return true
-		}
-	}
-	return false
-}
+// 	for _, validStatus := range validTransitions[currentStatus] {
+// 		if validStatus == newStatus {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }

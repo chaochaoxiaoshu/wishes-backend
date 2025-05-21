@@ -194,6 +194,178 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/admin/users/admin": {
+            "get": {
+                "description": "获取所有具有管理员权限的用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取所有拥有管理员权限的用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认1",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认10",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回管理员用户列表",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetAdminUsersResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "用户未登录或无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/users/regular": {
+            "get": {
+                "description": "获取所有不具有管理员权限的普通用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取所有不拥有管理员权限的用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认1",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认10",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回普通用户列表",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetAdminUsersResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "用户未登录或无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/users/{id}/admin": {
+            "put": {
+                "description": "设置或取消用户的管理员权限",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "更新用户管理员权限",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求数据",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateUserAdminRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "请求数据错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "用户未登录或无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/records/{id}": {
             "get": {
                 "description": "根据ID获取单个心愿认领记录的详细信息",
@@ -373,7 +545,7 @@ const docTemplate = `{
         },
         "/api/v1/user/records": {
             "get": {
-                "description": "获取当前登录用户点亮心愿的记录",
+                "description": "获取当前登录用户点亮心愿的记录（如果是管理员账号，获取所有用户的记录）",
                 "consumes": [
                     "application/json"
                 ],
@@ -383,7 +555,7 @@ const docTemplate = `{
                 "tags": [
                     "记录"
                 ],
-                "summary": "[小程序]获取用户点亮心愿的记录",
+                "summary": "[小程序]获取用户点亮心愿的记录（如果是管理员账号，获取所有用户的记录）",
                 "parameters": [
                     {
                         "type": "integer",
@@ -913,6 +1085,20 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.GetAdminUsersResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/utils.Pagination"
+                }
+            }
+        },
         "controllers.GetWishRecordsResponse": {
             "type": "object",
             "properties": {
@@ -1057,6 +1243,17 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.UpdateUserAdminRequest": {
+            "type": "object",
+            "required": [
+                "isAdmin"
+            ],
+            "properties": {
+                "isAdmin": {
+                    "type": "boolean"
+                }
+            }
+        },
         "controllers.UpdateWishDonorRequest": {
             "type": "object",
             "properties": {
@@ -1184,6 +1381,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isAdmin": {
+                    "type": "boolean"
                 },
                 "nickname": {
                     "type": "string"
