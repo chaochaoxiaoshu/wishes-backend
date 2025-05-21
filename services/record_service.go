@@ -59,7 +59,7 @@ func (s *RecordService) GetRecordsByUserID(userID uint, pageIndex, pageSize int,
 	offset := (pageIndex - 1) * pageSize
 
 	var records []models.WishRecord
-	if err := query.Limit(pageSize).Offset(offset).Find(&records).Error; err != nil {
+	if err := query.Preload("Wish").Limit(pageSize).Offset(offset).Find(&records).Error; err != nil {
 		return nil, 0, err
 	}
 
