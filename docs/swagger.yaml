@@ -171,6 +171,19 @@ definitions:
       status:
         $ref: '#/definitions/models.WishRecordStatus'
     type: object
+  controllers.UpdateShippingInfoRequest:
+    properties:
+      donorAddress:
+        type: string
+      donorMobile:
+        type: string
+      donorName:
+        type: string
+    required:
+    - donorAddress
+    - donorMobile
+    - donorName
+    type: object
   controllers.UpdateUserAdminRequest:
     properties:
       isAdmin:
@@ -204,6 +217,12 @@ definitions:
       photoUrl:
         type: string
       reason:
+        type: string
+    type: object
+  controllers.UploadImageResponse:
+    properties:
+      url:
+        description: 上传成功后的图片URL
         type: string
     type: object
   controllers.WechatLoginRequest:
@@ -582,6 +601,53 @@ paths:
       summary: '[小程序/后台]获取单个心愿认领记录详情'
       tags:
       - 记录
+  /api/v1/records/{id}/shipping-info:
+    put:
+      consumes:
+      - application/json
+      description: 更新收货人姓名、手机号和地址
+      parameters:
+      - description: 记录ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 收货信息
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateShippingInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回更新后的记录
+          schema:
+            $ref: '#/definitions/models.WishRecord'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未登录或无权限
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 记录不存在
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: '[小程序/后台]更新心愿认领记录的收货信息'
+      tags:
+      - 记录
   /api/v1/records/{id}/status:
     put:
       consumes:
@@ -629,6 +695,46 @@ paths:
       summary: '[小程序/后台]更新心愿认领记录状态'
       tags:
       - 记录
+  /api/v1/upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传图片到腾讯云对象存储
+      parameters:
+      - description: 图片文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: '存储目录，例如: images/avatar'
+        in: formData
+        name: directory
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功，返回图片URL
+          schema:
+            $ref: '#/definitions/controllers.UploadImageResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 用户未登录
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 上传图片
+      tags:
+      - 文件上传
   /api/v1/user/login:
     post:
       consumes:

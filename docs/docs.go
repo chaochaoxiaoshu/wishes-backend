@@ -254,6 +254,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/records/{id}/shipping-info": {
+            "put": {
+                "description": "更新收货人姓名、手机号和地址",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "记录"
+                ],
+                "summary": "[小程序/后台]更新心愿认领记录的收货信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "记录ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "收货信息",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateShippingInfoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回更新后的记录",
+                        "schema": {
+                            "$ref": "#/definitions/models.WishRecord"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "记录不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/records/{id}/status": {
             "put": {
                 "description": "更新记录状态并提供相应所需信息",
@@ -308,6 +377,65 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "记录不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/upload/image": {
+            "post": {
+                "description": "上传图片到腾讯云对象存储",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文件上传"
+                ],
+                "summary": "上传图片",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "图片文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "存储目录，例如: images/avatar",
+                        "name": "directory",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "上传成功，返回图片URL",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UploadImageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "用户未登录",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1243,6 +1371,25 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.UpdateShippingInfoRequest": {
+            "type": "object",
+            "required": [
+                "donorAddress",
+                "donorMobile",
+                "donorName"
+            ],
+            "properties": {
+                "donorAddress": {
+                    "type": "string"
+                },
+                "donorMobile": {
+                    "type": "string"
+                },
+                "donorName": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.UpdateUserAdminRequest": {
             "type": "object",
             "required": [
@@ -1293,6 +1440,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UploadImageResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "上传成功后的图片URL",
                     "type": "string"
                 }
             }
