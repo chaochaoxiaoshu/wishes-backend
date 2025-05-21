@@ -27,17 +27,22 @@ func main() {
 	wishService := services.NewWishService(db)
 	recordService := services.NewRecordService(db)
 	userService := services.NewUserService(db)
+	storageService := services.NewStorageService(cfg)
 
 	// 初始化控制器
 	authController := controllers.NewAuthController(db, wechatService)
 	wishController := controllers.NewWishController(wishService, recordService, userService)
 	recordController := controllers.NewRecordController(recordService)
+	userController := controllers.NewUserController(userService)
+	uploadController := controllers.NewUploadController(storageService)
 
 	// 设置路由
 	r := routes.SetupRouter(routes.SetupRouterOptions{
 		AuthController:   authController,
 		WishController:   wishController,
 		RecordController: recordController,
+		UserController:   userController,
+		UploadController: uploadController,
 	})
 
 	r.Run(cfg.ServerAddress)

@@ -10,6 +10,7 @@ import (
 )
 
 type SetupRouterOptions struct {
+	UploadController *controllers.UploadController
 	AuthController   *controllers.AuthController
 	WishController   *controllers.WishController
 	RecordController *controllers.RecordController
@@ -63,6 +64,9 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 			protected.GET("/users/admin", options.UserController.GetAdminUsers)
 			protected.GET("/users/regular", options.UserController.GetNonAdminUsers)
 			protected.PUT("/users/:id/admin", options.UserController.UpdateUserAdmin)
+
+			// 文件上传路由
+			protected.POST("/upload/image", options.UploadController.UploadImage)
 		}
 	}
 
