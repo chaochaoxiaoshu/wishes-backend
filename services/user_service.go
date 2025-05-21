@@ -23,3 +23,25 @@ func (s *UserService) GetUserByID(id uint) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (s *UserService) GetUsers(pageIndex, pageSize int, isAdmin bool) ([]models.User, int64, error) {
+	query := s.db.Model(&models.User{})
+
+	if isAdmin {
+		query = query.Where("is_admin = true")
+	}
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (pageIndex - 1) * pageSize
+
+	var users []models.User
+	if err := query.Order("created_at DESC").Limit(pageSize).Offset(offset).Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
+}

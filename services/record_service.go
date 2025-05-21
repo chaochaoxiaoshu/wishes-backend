@@ -95,17 +95,17 @@ func (s *RecordService) GetRecordByIDWithoutRecursion(id uint) (*models.WishReco
 	return &record, nil
 }
 
-func (s *RecordService) UpdateRecordStatus(recordID uint, newStatus models.WishRecordStatus, params map[string]interface{}) error {
+func (s *RecordService) UpdateRecordStatus(recordID uint, newStatus models.WishRecordStatus, params map[string]any) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		var record models.WishRecord
 		if err := tx.First(&record, recordID).Error; err != nil {
 			return err
 		}
 
-		// 检查状态转换是否合法
-		if !isValidStatusTransition(record.Status, newStatus) {
-			return fmt.Errorf("不允许从 %s 状态转换为 %s 状态", record.Status, newStatus)
-		}
+		// // 检查状态转换是否合法
+		// if !isValidStatusTransition(record.Status, newStatus) {
+		// 	return fmt.Errorf("不允许从 %s 状态转换为 %s 状态", record.Status, newStatus)
+		// }
 
 		// 更新记录状态
 		record.Status = newStatus
