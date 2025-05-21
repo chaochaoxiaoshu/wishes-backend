@@ -27,15 +27,17 @@ const (
 )
 
 type JWTClaims struct {
-	UserID uint
-	Type   UserType
+	UserID  uint
+	Type    UserType
+	IsAdmin bool
 	jwt.RegisteredClaims
 }
 
 func GenerateUserToken(user models.User) (string, error) {
 	claims := JWTClaims{
-		UserID: user.ID,
-		Type:   UserTypeUser,
+		UserID:  user.ID,
+		Type:    UserTypeUser,
+		IsAdmin: user.IsAdmin,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 7 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -52,8 +54,9 @@ func GenerateUserToken(user models.User) (string, error) {
 
 func GenerateAdminToken(admin models.Admin) (string, error) {
 	claims := JWTClaims{
-		UserID: admin.ID,
-		Type:   UserTypeAdmin,
+		UserID:  admin.ID,
+		Type:    UserTypeAdmin,
+		IsAdmin: true,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 7 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -109,6 +112,7 @@ func JWTAuth() gin.HandlerFunc {
 
 		c.Set("userID", claims.UserID)
 		c.Set("userType", claims.Type)
+		c.Set("isAdmin", claims.IsAdmin)
 		c.Next()
 	}
 }

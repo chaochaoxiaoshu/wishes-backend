@@ -28,8 +28,8 @@ type GetWishRecordsResponse struct {
 }
 
 // GetWishRecords godoc
-// @Summary      [小程序]获取用户点亮心愿的记录
-// @Description  获取当前登录用户点亮心愿的记录
+// @Summary      [小程序]获取用户点亮心愿的记录（如果是管理员账号，获取所有用户的记录）
+// @Description  获取当前登录用户点亮心愿的记录（如果是管理员账号，获取所有用户的记录）
 // @Tags         记录
 // @Accept       json
 // @Produce      json
@@ -52,6 +52,12 @@ func (c *RecordController) GetWishRecords(ctx *gin.Context) {
 		return
 	}
 
+	isAdmin := false
+	isAdminValue, exists := ctx.Get("isAdmin")
+	if exists {
+		isAdmin, _ = isAdminValue.(bool)
+	}
+
 	pageIndexStr := ctx.DefaultQuery("pageIndex", "1")
 	pageIndex, err := strconv.Atoi(pageIndexStr)
 	if err != nil || pageIndex < 1 {
@@ -66,7 +72,7 @@ func (c *RecordController) GetWishRecords(ctx *gin.Context) {
 
 	status := ctx.Query("status")
 
-	records, total, err := c.recordService.GetRecordsByUserID(userID.(uint), pageIndex, pageSize, status)
+	records, total, err := c.recordService.GetRecordsByUserID(userID.(uint), pageIndex, pageSize, status, isAdmin)
 	if err != nil {
 		ctx.JSON(500, utils.CreateResponse(nil, "获取心愿列表失败"))
 		return
@@ -352,13 +358,6 @@ func (c *RecordController) UpdateRecordStatus(ctx *gin.Context) {
 	_, err = c.recordService.GetRecordByIDWithoutRecursion(uint(id))
 	if err != nil {
 		ctx.JSON(404, utils.CreateResponse(nil, "记录不存在"))
-		return
-	}
-
-	// 检查权限
-	userType, _ := ctx.Get("userType")
-	if userType != "admin" {
-		ctx.JSON(401, utils.CreateResponse(nil, "只有管理员可以更新记录状态"))
 		return
 	}
 

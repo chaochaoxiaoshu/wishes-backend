@@ -15,6 +15,7 @@ type User struct {
 	WechatUnionID string `json:"wechatUnionId,omitempty" gorm:"column:wechat_unionid"`
 	AvatarURL     string `json:"avatarUrl,omitempty" gorm:"column:avatar_url"`
 	Nickname      string `json:"nickname,omitempty"`
+	IsAdmin       bool   `json:"isAdmin" gorm:"default:false"`
 }
 
 // @Description 系统管理员信息

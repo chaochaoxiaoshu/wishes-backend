@@ -44,8 +44,13 @@ func (s *RecordService) GetAllRecords(pageIndex, pageSize int, status string) ([
 	return records, total, nil
 }
 
-func (s *RecordService) GetRecordsByUserID(userID uint, pageIndex, pageSize int, status string) ([]models.WishRecord, int64, error) {
-	query := s.db.Model(&models.WishRecord{}).Where("donor_id = ?", userID)
+func (s *RecordService) GetRecordsByUserID(userID uint, pageIndex, pageSize int, status string, isAdmin bool) ([]models.WishRecord, int64, error) {
+	query := s.db.Model(&models.WishRecord{})
+
+	// 如果是管理员，就查全部的数据，否则只查当前用户的
+	if !isAdmin {
+		query = query.Where("donor_id = ?", userID)
+	}
 
 	if status != "" {
 		query = query.Where("status = ?", status)
