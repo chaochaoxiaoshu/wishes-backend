@@ -144,7 +144,7 @@ type ProgressItem struct {
 	TrackingNumber string `json:"trackingNumber,omitempty"` // 单号，如有
 }
 
-// 详细记录响应结构体
+// 记录详情响应结构体
 type RecordDetailResponse struct {
 	// 记录基本信息
 	ID        uint                    `json:"id"`

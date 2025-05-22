@@ -7,6 +7,20 @@ services:
       - sqlite-data:/app/data
     env_file:
       - .env
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:17
+    container_name: wishes-postgres
+    environment:
+      POSTGRES_USER: wishes
+      POSTGRES_PASSWORD: wishes123
+      POSTGRES_DB: wishes
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
 volumes:
   sqlite-data:
     driver: local
