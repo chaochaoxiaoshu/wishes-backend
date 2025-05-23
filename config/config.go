@@ -7,7 +7,12 @@ import (
 )
 
 type Config struct {
-	DBPath          string
+	PostgresHost     string
+	PostgresPort     string
+	PostgresUser     string
+	PostgresPassword string
+	PostgresName     string
+
 	ServerAddress   string
 	JWTSecret       []byte
 	WechatAppID     string
@@ -24,7 +29,12 @@ type Config struct {
 func LoadConfig() *Config {
 	_ = godotenv.Load()
 
-	dbPath := os.Getenv("SQLITE_DB_PATH")
+	postgresHost := os.Getenv("POSTGRES_HOST")
+	postgresPort := os.Getenv("POSTGRES_PORT")
+	postgresUser := os.Getenv("POSTGRES_USER")
+	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
+	postgresName := os.Getenv("POSTGRES_NAME")
+
 	serverAddress := os.Getenv("SERVER_ADDRESS")
 	jwtSecret := os.Getenv("JWT_SECRET")
 	wechatAppId := os.Getenv("WECHAT_APPID")
@@ -38,7 +48,12 @@ func LoadConfig() *Config {
 	cosBaseURL := os.Getenv("COS_BASE_URL")
 
 	return &Config{
-		DBPath:          dbPath,
+		PostgresHost:     postgresHost,
+		PostgresPort:     postgresPort,
+		PostgresUser:     postgresUser,
+		PostgresPassword: postgresPassword,
+		PostgresName:     postgresName,
+
 		ServerAddress:   serverAddress,
 		JWTSecret:       []byte(jwtSecret),
 		WechatAppID:     wechatAppId,

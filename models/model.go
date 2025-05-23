@@ -25,6 +25,11 @@ type Admin struct {
 	Password string `json:"password,omitempty" gorm:"not null"`
 }
 
+// 为Admin表设置表名
+func (Admin) TableName() string {
+	return "admins"
+}
+
 // @Description 用户性别类型
 type Gender string
 
@@ -46,8 +51,7 @@ type Wish struct {
 
 	IsPublished bool `json:"isPublished" gorm:"default:false"`
 
-	ActiveRecordID *uint       `json:"activeRecordId,omitempty"`
-	ActiveRecord   *WishRecord `json:"activeRecord,omitempty" gorm:"foreignKey:ActiveRecordID"`
+	ActiveRecordID *uint `json:"activeRecordId,omitempty"`
 }
 
 // @Description 心愿认领记录状态

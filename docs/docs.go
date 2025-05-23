@@ -1559,9 +1559,6 @@ const docTemplate = `{
             "description": "心愿信息",
             "type": "object",
             "properties": {
-                "activeRecord": {
-                    "$ref": "#/definitions/models.WishRecord"
-                },
                 "activeRecordId": {
                     "type": "integer"
                 },
