@@ -32,7 +32,7 @@ func NewWishController(
 }
 
 type GetWishesResponse struct {
-	Items      []models.Wish    `json:"items"`
+	Items      []services.WishResponse    `json:"items"`
 	Pagination utils.Pagination `json:"pagination"`
 }
 
