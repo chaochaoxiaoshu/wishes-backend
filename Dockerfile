@@ -15,7 +15,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o /app/server .
 
 FROM alpine:3.18
 
-RUN apk add --no-cache libc6-compat sqlite
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
