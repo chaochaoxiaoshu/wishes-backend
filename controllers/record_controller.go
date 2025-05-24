@@ -156,6 +156,13 @@ type RecordDetailResponse struct {
 	// 进度数组
 	Progress []ProgressItem `json:"progress"`
 
+	PlatformGiftMessage string `json:"platformGiftMessage,omitempty"` // 平台回礼信息
+	PlatformGiftPhotos  string `json:"platformGiftPhotos,omitempty"`  // 平台回礼照片数组
+	PlatformGiftTime    int64  `json:"platformGiftTime,omitempty"`    // 平台回礼时间
+	OwnerGiftMessage    string `json:"ownerGiftMessage,omitempty"`    // 心愿主人回礼信息
+	OwnerGiftPhotos     string `json:"ownerGiftPhotos,omitempty"`     // 心愿主人回礼照片数组
+	OwnerGiftTime       int64  `json:"ownerGiftTime,omitempty"`       // 心愿主人回礼时间
+
 	ChildName   string `json:"childName"`
 	WishContent string `json:"wishContent"`
 	WishReason  string `json:"wishReason"`
@@ -298,6 +305,13 @@ func (c *RecordController) GetRecordByID(ctx *gin.Context) {
 
 			// 进度数组
 			Progress: progressItems,
+
+			PlatformGiftMessage: utils.GetStringValue(record.PlatformGiftMessage),
+			PlatformGiftPhotos: utils.GetStringValue(record.PlatformGiftPhotos),
+			PlatformGiftTime: utils.GetInt64Value(record.PlatformGiftTime),
+			OwnerGiftMessage: utils.GetStringValue(record.OwnerGiftMessage),
+			OwnerGiftPhotos: utils.GetStringValue(record.OwnerGiftPhotos),
+			OwnerGiftTime: utils.GetInt64Value(record.OwnerGiftTime),
 
 			ChildName:   record.Wish.ChildName,
 			WishContent: record.Wish.Content,
