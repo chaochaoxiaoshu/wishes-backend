@@ -55,7 +55,7 @@ func (s *WishService) GetWishes(filters map[string]any) ([]models.Wish, int64, e
 	offset := (pageIndex - 1) * pageSize
 
 	var wishes []models.Wish
-	if err := query.Limit(pageSize).Offset(offset).Find(&wishes).Error; err != nil {
+	if err := query.Order("created_at DESC").Limit(pageSize).Offset(offset).Find(&wishes).Error; err != nil {
 		return nil, 0, err
 	}
 
