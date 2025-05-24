@@ -6,6 +6,8 @@ RUN apk add --no-cache gcc musl-dev
 
 WORKDIR /app
 
+ENV GOPROXY=https://goproxy.cn,direct
+
 COPY go.mod ./
 COPY go.sum* ./
 
