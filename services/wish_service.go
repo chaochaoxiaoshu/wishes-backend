@@ -18,7 +18,13 @@ func NewWishService(db *gorm.DB) *WishService {
 	}
 }
 
-func (s *WishService) GetWishes(filters map[string]any) ([]models.Wish, int64, error) {
+// WishResponse 包含心愿信息和附加字段
+type WishResponse struct {
+	models.Wish
+	IsDone bool `json:"isDone"`
+}
+
+func (s *WishService) GetWishes(filters map[string]any) ([]WishResponse, int64, error) {
 	query := s.db.Model(&models.Wish{})
 
 	if content, ok := filters["content"].(string); ok && content != "" {
@@ -55,11 +61,20 @@ func (s *WishService) GetWishes(filters map[string]any) ([]models.Wish, int64, e
 	offset := (pageIndex - 1) * pageSize
 
 	var wishes []models.Wish
-	if err := query.Limit(pageSize).Offset(offset).Find(&wishes).Error; err != nil {
+	if err := query.Order("created_at DESC").Limit(pageSize).Offset(offset).Find(&wishes).Error; err != nil {
 		return nil, 0, err
 	}
 
-	return wishes, total, nil
+	// 转换为带有 isDone 字段的响应结构体
+	wishResponses := make([]WishResponse, len(wishes))
+	for i, wish := range wishes {
+		wishResponses[i] = WishResponse{
+			Wish:   wish,
+			IsDone: wish.ActiveRecordID != nil,
+		}
+	}
+
+	return wishResponses, total, nil
 }
 
 func (s *WishService) CreateWish(wish *models.Wish) error {

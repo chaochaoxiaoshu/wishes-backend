@@ -30,11 +30,11 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 	api := r.Group("/api")
 	v1 := api.Group("/v1")
 	{
-		auth := v1.Group("/user")
+		user := v1.Group("/user")
 		{
-			auth.POST("/login", options.AuthController.WechatLogin)
+			user.POST("/login", options.AuthController.WechatLogin)
 
-			userProtected := auth.Group("/")
+			userProtected := user.Group("/")
 			userProtected.Use(middleware.JWTAuth())
 			{
 				userProtected.GET("/records", options.RecordController.GetWishRecords)
@@ -45,6 +45,12 @@ func SetupRouter(options SetupRouterOptions) *gin.Engine {
 		{
 			admin.POST("/register", options.AuthController.AdminRegister)
 			admin.POST("/login", options.AuthController.AdminLogin)
+
+			adminProtected := admin.Group("/")
+			adminProtected.Use(middleware.JWTAuth())
+			{
+				adminProtected.GET("/records", options.RecordController.GetAllRecords)
+			}
 		}
 
 		v1.GET("/wishes", options.WishController.GetWishes)

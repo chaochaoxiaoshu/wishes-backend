@@ -32,7 +32,7 @@ func NewWishController(
 }
 
 type GetWishesResponse struct {
-	Items      []models.Wish    `json:"items"`
+	Items      []services.WishResponse    `json:"items"`
 	Pagination utils.Pagination `json:"pagination"`
 }
 
@@ -52,7 +52,7 @@ type GetWishesResponse struct {
 // @Router       /api/v1/wishes [get]
 func (c *WishController) GetWishes(ctx *gin.Context) {
 	content := ctx.Query("content")
-	isDoneStr := ctx.DefaultQuery("isDone", "false")
+	isDoneStr := ctx.Query("isDone")
 	isPublishedStr := ctx.Query("isPublished") // 不设置默认值，不传表示全部
 	pageIndexStr := ctx.DefaultQuery("pageIndex", "1")
 	pageSizeStr := ctx.DefaultQuery("pageSize", "10")
