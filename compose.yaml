@@ -6,7 +6,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: always
     healthcheck:
       test:
@@ -14,21 +15,12 @@ services:
           'CMD',
           'sh',
           '-c',
-          'wget --spider --quiet http://localhost:8080/ || exit 1',
+          'wget -q -O - http://localhost:8080/api/v1/wishes > /dev/null || exit 1',
         ]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 10s
-    deploy:
-      replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
-        failure_action: rollback
-      restart_policy:
-        condition: on-failure
   postgres:
     image: postgres:17
     container_name: wishes-postgres
