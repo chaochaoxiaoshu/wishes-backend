@@ -8,6 +8,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    restart: always
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "curl -s http://localhost:8080/api/v1/wishes?pageIndex=1&pageSize=1 -o /dev/null -w '%{http_code}' | grep -q '200\\|401\\|403' || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
   postgres:
     image: postgres:17
     container_name: wishes-postgres
