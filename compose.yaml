@@ -6,14 +6,15 @@ services:
     env_file:
       - .env
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     restart: always
     healthcheck:
       test:
         [
-          'CMD-SHELL',
-          "curl -s http://localhost:8080/api/v1/wishes?pageIndex=1&pageSize=1 -o /dev/null -w '%{http_code}' | grep -q '200\\|401\\|403' || exit 1",
+          'CMD',
+          'sh',
+          '-c',
+          'wget --spider --quiet http://localhost:8080/ || exit 1',
         ]
       interval: 10s
       timeout: 5s
