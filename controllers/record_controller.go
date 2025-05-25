@@ -332,17 +332,19 @@ func (c *RecordController) GetRecordByID(ctx *gin.Context) {
 }
 
 type UpdateRecordStatusRequest struct {
-	Status              models.WishRecordStatus `json:"status"`
-	ShippingNumber      string                  `json:"shippingNumber,omitempty"`
-	ConfirmationMessage string                  `json:"confirmationMessage,omitempty"`
-	ConfirmationPhotos  string                  `json:"confirmationPhotos,omitempty"`
-	DeliveryNumber      string                  `json:"deliveryNumber,omitempty"`
-	ReceiptMessage      string                  `json:"receiptMessage,omitempty"`
-	ReceiptPhotos       string                  `json:"receiptPhotos,omitempty"`
-	PlatformGiftMessage string                  `json:"platformGiftMessage,omitempty"`
-	PlatformGiftPhotos  string                  `json:"platformGiftPhotos,omitempty"`
-	OwnerGiftMessage    string                  `json:"ownerGiftMessage,omitempty"`
-	OwnerGiftPhotos     string                  `json:"ownerGiftPhotos,omitempty"`
+	Status               models.WishRecordStatus `json:"status"`
+	ShippingNumber       string                  `json:"shippingNumber,omitempty"`
+	ConfirmationMessage  string                  `json:"confirmationMessage,omitempty"`
+	ConfirmationPhotos   string                  `json:"confirmationPhotos,omitempty"`
+	DeliveryNumber       string                  `json:"deliveryNumber,omitempty"`
+	ReceiptMessage       string                  `json:"receiptMessage,omitempty"`
+	ReceiptPhotos        string                  `json:"receiptPhotos,omitempty"`
+	PlatformGiftMessage  string                  `json:"platformGiftMessage,omitempty"`
+	PlatformGiftPhotos   string                  `json:"platformGiftPhotos,omitempty"`
+	PlatformGiftTracking string                  `json:"platformGiftTracking,omitempty"`
+	OwnerGiftMessage     string                  `json:"ownerGiftMessage,omitempty"`
+	OwnerGiftPhotos      string                  `json:"ownerGiftPhotos,omitempty"`
+	OwnerGiftTracking    string                  `json:"ownerGiftTracking,omitempty"`
 }
 
 // UpdateRecordStatus godoc
@@ -384,16 +386,18 @@ func (c *RecordController) UpdateRecordStatus(ctx *gin.Context) {
 
 	// 构造更新参数
 	params := map[string]any{
-		"shippingNumber":      req.ShippingNumber,
-		"confirmationMessage": req.ConfirmationMessage,
-		"confirmationPhotos":  req.ConfirmationPhotos,
-		"deliveryNumber":      req.DeliveryNumber,
-		"receiptMessage":      req.ReceiptMessage,
-		"receiptPhotos":       req.ReceiptPhotos,
-		"platformGiftMessage": req.PlatformGiftMessage,
-		"platformGiftPhotos":  req.PlatformGiftPhotos,
-		"ownerGiftMessage":    req.OwnerGiftMessage,
-		"ownerGiftPhotos":     req.OwnerGiftPhotos,
+		"shippingNumber":       req.ShippingNumber,
+		"confirmationMessage":  req.ConfirmationMessage,
+		"confirmationPhotos":   req.ConfirmationPhotos,
+		"deliveryNumber":       req.DeliveryNumber,
+		"receiptMessage":       req.ReceiptMessage,
+		"receiptPhotos":        req.ReceiptPhotos,
+		"platformGiftMessage":  req.PlatformGiftMessage,
+		"platformGiftPhotos":   req.PlatformGiftPhotos,
+		"platformGiftTracking": req.PlatformGiftTracking,
+		"ownerGiftMessage":     req.OwnerGiftMessage,
+		"ownerGiftPhotos":      req.OwnerGiftPhotos,
+		"ownerGiftTracking":    req.OwnerGiftTracking,
 	}
 
 	// 更新状态

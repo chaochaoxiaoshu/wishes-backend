@@ -98,12 +98,14 @@ type WishRecord struct {
 	ReceiptPhotos  *string `json:"receiptPhotos,omitempty"`  // 签收照片数组
 	ReceiptTime    *int64  `json:"receiptTime,omitempty"`    // 签收时间
 
-	PlatformGiftMessage *string `json:"platformGiftMessage,omitempty"` // 平台回礼信息
-	PlatformGiftPhotos  *string `json:"platformGiftPhotos,omitempty"`  // 平台回礼照片数组
-	PlatformGiftTime    *int64  `json:"platformGiftTime,omitempty"`    // 平台回礼时间
-	OwnerGiftMessage    *string `json:"ownerGiftMessage,omitempty"`    // 心愿主人回礼信息
-	OwnerGiftPhotos     *string `json:"ownerGiftPhotos,omitempty"`     // 心愿主人回礼照片数组
-	OwnerGiftTime       *int64  `json:"ownerGiftTime,omitempty"`       // 心愿主人回礼时间
+	PlatformGiftMessage    *string `json:"platformGiftMessage,omitempty"`    // 平台回礼信息
+	PlatformGiftPhotos     *string `json:"platformGiftPhotos,omitempty"`     // 平台回礼照片数组
+	PlatformGiftTime       *int64  `json:"platformGiftTime,omitempty"`       // 平台回礼时间
+	PlatformGiftTracking   *string `json:"platformGiftTracking,omitempty"`   // 平台回礼单号
+	OwnerGiftMessage       *string `json:"ownerGiftMessage,omitempty"`       // 心愿主人回礼信息
+	OwnerGiftPhotos        *string `json:"ownerGiftPhotos,omitempty"`        // 心愿主人回礼照片数组
+	OwnerGiftTime          *int64  `json:"ownerGiftTime,omitempty"`          // 心愿主人回礼时间
+	OwnerGiftTracking      *string `json:"ownerGiftTracking,omitempty"`      // 心愿主人回礼单号
 
 	CancellationTime *int64 `json:"cancellationTime,omitempty"` // 取消时间
 }

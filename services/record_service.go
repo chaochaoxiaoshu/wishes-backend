@@ -163,6 +163,14 @@ func (s *RecordService) UpdateRecordStatus(recordID uint, newStatus models.WishR
 					record.PlatformGiftTime = &now
 				}
 			}
+			if platformGiftTracking, ok := params["platformGiftTracking"].(string); ok {
+				record.PlatformGiftTracking = &platformGiftTracking
+				// 如果提供了回礼单号但没有回礼时间，则更新时间
+				if platformGiftTracking != "" && (record.PlatformGiftTime == nil || *record.PlatformGiftTime == 0) {
+					now := time.Now().Unix()
+					record.PlatformGiftTime = &now
+				}
+			}
 			if ownerGiftMessage, ok := params["ownerGiftMessage"].(string); ok {
 				record.OwnerGiftMessage = &ownerGiftMessage
 				if ownerGiftMessage != "" {
@@ -174,6 +182,14 @@ func (s *RecordService) UpdateRecordStatus(recordID uint, newStatus models.WishR
 				record.OwnerGiftPhotos = &ownerGiftPhotos
 				// 需要先检查指针是否为 nil
 				if ownerGiftPhotos != "" && (record.OwnerGiftTime == nil || *record.OwnerGiftTime == 0) {
+					now := time.Now().Unix()
+					record.OwnerGiftTime = &now
+				}
+			}
+			if ownerGiftTracking, ok := params["ownerGiftTracking"].(string); ok {
+				record.OwnerGiftTracking = &ownerGiftTracking
+				// 如果提供了回礼单号但没有回礼时间，则更新时间
+				if ownerGiftTracking != "" && (record.OwnerGiftTime == nil || *record.OwnerGiftTime == 0) {
 					now := time.Now().Unix()
 					record.OwnerGiftTime = &now
 				}
